@@ -765,6 +765,7 @@ export default class Web3service extends Service.extend({}) {
   _lweb3 = new Web3(this._web3addr);
   _directNetworkContract = new this._lweb3.eth.Contract(this._abi, this._geofinger_contract_address);
   _metamask = null;
+  hasWalletEventsSet = false;
   @tracked _isMintingActive = false;
   @service router;
   

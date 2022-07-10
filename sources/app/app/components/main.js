@@ -16,6 +16,7 @@ export default class MainComponent extends Component {
   @tracked isShowingEnableGeoLocationModal = false;
   @tracked isShowingErrorModal = false;
   @service web3service;
+  @service walletConnect;
   
   @tracked statusMessage = '';
   @tracked bigStatus = 'please wait a few seconds while i fetch your location!';
@@ -25,7 +26,8 @@ export default class MainComponent extends Component {
   arithmeticLocation = {lat: 0, lon: 0}
 
   get isAppReady() {
-    return this.isTracking && this.web3service.isConnected && this.lat != -1 && this.lon != -1;
+   return this.walletConnect.isConnected;
+   // return this.isTracking && this.web3service.isConnected && this.lat != -1 && this.lon != -1;
   }
 
 

@@ -9,6 +9,7 @@ export default class Dashboard extends Component {
 
 
     @service web3service;
+    @service walletConnect;
     @service router;
 
     
