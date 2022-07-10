@@ -100,7 +100,7 @@ export default class MainComponent extends Component {
     try {
       this.isMinting = true;
       this.setStatusMessage('sending messsage');
-      await this.web3service.mintMessage(this.enteredMessage,this.arithmeticLocation.lon, this.arithmeticLocation.lat, true);
+      await this.walletConnect.mintMessage(this.enteredMessage,this.arithmeticLocation.lon, this.arithmeticLocation.lat, true);
      
 
     } catch (reason) {

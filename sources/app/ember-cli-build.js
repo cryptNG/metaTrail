@@ -20,5 +20,20 @@ module.exports = function (defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
-  return app.toTree();
+ // return app.toTree();
+  const { Webpack } = require('@embroider/webpack');
+  return require('@embroider/compat').compatBuild(app, Webpack,
+    {
+      packagerOptions: {
+      webpackConfig: {
+        // resolve: {fallback: {
+        //   "stream": require.resolve("stream-browserify"),
+        //   "http": require.resolve("stream-http"),
+        //   "https": require.resolve("https-browserify"),
+        //   "os": require.resolve("os-browserify/browser")
+        // }}
+        // //resolve: {fallback: {"stream": false, "http": false, "os": false, "https": false}}
+       }
+      }
+    });
 };

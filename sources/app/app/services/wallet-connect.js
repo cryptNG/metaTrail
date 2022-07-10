@@ -5,6 +5,7 @@ import { IInternalEvent } from "@walletconnect/types";
 import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import QRCodeModal from "@walletconnect/qrcode-modal";
+import {providers, utils, Contract} from "ethers";
 
 export default class WalletConnectService extends Service {
     
@@ -766,14 +767,15 @@ export default class WalletConnectService extends Service {
     _web3addr = 'https://testnet.cryptng.com:8545';
     //_web3addr = 'http://127.0.0.1:9545';
     _geofinger_contract_address = '0x94A185f415a986aeF85a79029f5d1bEeE1a9ED1d';
-    _lweb3 = new Web3(this._web3addr);
-    _directNetworkContract = new this._lweb3.eth.Contract(this._abi, this._geofinger_contract_address);
+    _provider = new providers.JsonRpcProvider(this._web3addr)
+    _directNetworkContract = new Contract(this._geofinger_contract_address,this._abi,this._provider);
   
 
     @tracked connector;
     provider;
     bridge = "https://bridge.walletconnect.org";
     hasWalletEventsSet = false;
+    
     @tracked connectedAccount = null;
     @service router;
     @tracked _isMintingActive = false;
@@ -781,8 +783,14 @@ export default class WalletConnectService extends Service {
     constructor()
     {
         super(...arguments);
+
         this.connector = new WalletConnect({bridge: this.bridge, qrcodeModal: QRCodeModal});
-      
+       
+        console.log('provider');
+        console.log(this._provider);
+        console.log('directNetworkContract');
+        console.log(this._directNetworkContract);
+        
     }
 
     get isConnected()
@@ -790,6 +798,13 @@ export default class WalletConnectService extends Service {
         console.log(this.connector.connected);
         console.log(this.connectedAccount);
         return this.connector.connected;
+    }
+
+    async disconnect() 
+    {
+        await this.connector.killSession();
+        
+        await this.connector.createSession();
     }
 
     async registerHandlers(){
@@ -831,12 +846,11 @@ export default class WalletConnectService extends Service {
  
      this.connector.on("disconnect", (error, payload) => {
        console.log(`connector.on("disconnect")`);
- 
+       this.connector.createSession();
        if (error) {
          throw error;
        }
  
-       this.router.transitionTo('/');
      });
  
      if (this.connector.connected) {
@@ -848,48 +862,82 @@ export default class WalletConnectService extends Service {
         // create new session
         this.connector.createSession();
       }
+
       }
 
       async getIsMintingActive() {
         console.debug('asking contract if minting is active');
-        let res = await this._directNetworkContract.methods.getIsMintingActive();
+        let res = await this._directNetworkContract.getIsMintingActive();
         console.debug('result: ' + res);
         this._isMintingActive = res;
       }
 
       async mintMessage(message, lon, lat, autoconvert) {
-        if (window.ethereum == null || window.ethereum == undefined) return;
-    
-    
-        console.debug('ACCOUNT:' + window.ethereum.selectedAddress);
-    
-      let success = false;
-        let currentGasPrice = this._lweb3.utils.numberToHex(await this._lweb3.eth.getGasPrice());
-        console.debug('currentGasPrice: ' + currentGasPrice);
-        let estimatedGasSpending = this._lweb3.utils.numberToHex(await this._directNetworkContract.methods.mintMessage(message, lon, lat, autoconvert).estimateGas({ from: this.connectedAccount }));
-        console.debug('estimatedGasSpending: ' + estimatedGasSpending);
-        console.debug('ETH-ADDRESS: ' + this.connectedAccount);
-    
-    
-        await this._metamask.methods.mintMessage(message, lon, lat, autoconvert).send({ from: this.connectedAccount })
-          .on('transactionHash', function (hash) {
-            console.debug('transactionhash: ' + hash);
+          try
+          {
+        const iface = new utils.Interface(this._abi);
+        const nonce = await this._provider.getTransactionCount(this.connectedAccount);
+        const gasPrice = utils.hexlify(await this._provider.getGasPrice());
+        const estimatedGasSpending = utils.hexlify(await this._directNetworkContract.estimateGas.mintMessage(message, lon, lat, autoconvert, {from: this.connectedAccount}) * 100000);
+        console.log('gas estimate: ' + estimatedGasSpending);
+        const gasLimit = utils.hexlify(30000);
+        const value = utils.hexlify(0);
+        const data = this._directNetworkContract.interface.encodeFunctionData("mintMessage", [ message, lon, lat, autoconvert ]);
+        
+        // const tx = {
+        //     from: this.connectedAccount,
+        //     to: this._geofinger_contract_address,
+        //     nonce: nonce,
+        //     gasPrice: estimatedGasSpending,
+        //     gasLimit: gasLimit,
+        //     value: value,
+        //     data: data,
+        //   };
+        //   const customRequest = {
+        //     id: 3,
+        //     jsonrpc: "2.0",
+        //     method: "eth_sendTransaction",
+        //     params: [
+        //         tx,
+        //     ],
+        //   };
+
+        const tx = {
+            from: this.connectedAccount,
+            to: this._geofinger_contract_address,
+            nonce: nonce,
+            gasPrice: estimatedGasSpending,
+            gasLimit: gasLimit,
+            value: value,
+            data: data,
+          };
+       
+        //const result =  await this.connector.sendTransaction(tx);
+        const result =  this.connector.sendTransaction(tx).then((result) => {
+            // Returns request result
+            console.log(result);
           })
-          .on('confirmation', function (confirmationNumber, receipt) {
-    
-            console.debug('confirmation no: ' + confirmationNumber);
-            success = true;
-          })
-          .on('receipt', function (receipt) {
-            // receipt example
-            console.debug('receipt: ' + receipt);
-    
-          })
-          .on('error', function (error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
-            console.debug('error: ' + error);
+          .catch((error) => {
+            // Error returned when rejected
+            console.error(error);
           });
-    
-        return success;
+          return;
+console.log('res');
+console.log(result);
+        const formattedResult = {
+            method: "eth_sendTransaction",
+            txHash: result,
+            from: address,
+            to: address,
+            value: `${_value} ETH`,
+          };
+        console.log(JSON.stringifyformattedResult);
+        }
+        catch(reason)
+        {
+            console.log(reason);
+        }
+        return true;
       }
 
 }

@@ -31,6 +31,22 @@ export default class Dashboard extends Component {
     }
   }
 
+
+  @action async disconnect()
+  {
+    try
+    {
+
+      await this.walletConnect.disconnect();
+      
+    
+
+    }
+    catch(err)
+    {
+      window.alert(err.message);
+    }
+  }
   
 
 
