@@ -49,10 +49,10 @@
      // tab if you use this network and you must also set the `host`, `port` and `network_id`
      // options below to some value.
      //
-     yitc:{
+     testnet:{
        network_id: 5777,
        provider: () => new HDWalletProvider('minimum symptom minute gloom tragic situate silver mechanic salad amused elite beef', 'https://yitc.ddns.net:8545'),
-       web3Uri:'https://yitc.ddns.net:8545'
+       web3Uri:'https://testnet.cryptng.com:8545'
      },
      novent_local:{
        host: "192.168.0.7",

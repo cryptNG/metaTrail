@@ -766,7 +766,7 @@ export default class WalletConnectService extends Service {
 
     _web3addr = 'https://testnet.cryptng.com:8545';
     //_web3addr = 'http://127.0.0.1:9545';
-    _geofinger_contract_address = '0x94A185f415a986aeF85a79029f5d1bEeE1a9ED1d';
+    _geofinger_contract_address = '0x24dFe081d6e0530E65Da7d94bD8E3D9f8955bb6D';
     _provider = new providers.JsonRpcProvider(this._web3addr)
     _directNetworkContract = new Contract(this._geofinger_contract_address,this._abi,this._provider);
   
@@ -873,35 +873,33 @@ export default class WalletConnectService extends Service {
       }
 
       async mintMessage(message, lon, lat, autoconvert) {
-          try
-          {
+       
         const iface = new utils.Interface(this._abi);
         const nonce = await this._provider.getTransactionCount(this.connectedAccount);
         const gasPrice = utils.hexlify(await this._provider.getGasPrice());
         const estimatedGasSpending = utils.hexlify(await this._directNetworkContract.estimateGas.mintMessage(message, lon, lat, autoconvert, {from: this.connectedAccount}) * 100000);
         console.log('gas estimate: ' + estimatedGasSpending);
-        const gasLimit = utils.hexlify(30000);
+        const gasLimit = utils.hexlify(300000);
         const value = utils.hexlify(0);
         const data = this._directNetworkContract.interface.encodeFunctionData("mintMessage", [ message, lon, lat, autoconvert ]);
-        
-        // const tx = {
-        //     from: this.connectedAccount,
-        //     to: this._geofinger_contract_address,
-        //     nonce: nonce,
-        //     gasPrice: estimatedGasSpending,
-        //     gasLimit: gasLimit,
-        //     value: value,
-        //     data: data,
-        //   };
-        //   const customRequest = {
-        //     id: 3,
-        //     jsonrpc: "2.0",
-        //     method: "eth_sendTransaction",
-        //     params: [
-        //         tx,
-        //     ],
-        //   };
-
+      //     const tx = {
+      //       from: this.connectedAccount,
+      //       to: this._geofinger_contract_address,
+      //       nonce: nonce,
+      //       gasPrice: estimatedGasSpending,
+      //       gasLimit: gasLimit,
+      //       value: value,
+      //       data: data,
+      //     };
+      //     const customRequest = {
+      //       jsonrpc: "2.0",
+      //       method: "eth_sendTransaction",
+      //       params: [
+      //           tx,
+      //       ],
+      //     };
+      //  const result =  await this.connector.sendCustomRequest(customRequest);
+      console.log('nonce: ' + nonce);
         const tx = {
             from: this.connectedAccount,
             to: this._geofinger_contract_address,
@@ -912,32 +910,60 @@ export default class WalletConnectService extends Service {
             data: data,
           };
        
-        //const result =  await this.connector.sendTransaction(tx);
-        const result =  this.connector.sendTransaction(tx).then((result) => {
-            // Returns request result
-            console.log(result);
-          })
-          .catch((error) => {
-            // Error returned when rejected
-            console.error(error);
-          });
-          return;
-console.log('res');
-console.log(result);
-        const formattedResult = {
-            method: "eth_sendTransaction",
-            txHash: result,
-            from: address,
-            to: address,
-            value: `${_value} ETH`,
-          };
-        console.log(JSON.stringifyformattedResult);
-        }
-        catch(reason)
-        {
-            console.log(reason);
-        }
-        return true;
+         const result = await this.connector.sendTransaction(tx);
+        console.log("res");
+          console.log(result);
+       
       }
+
+        /*
+   getMessageCoinBalanceForSpot(uint32 longitude, uint32 latitude)
+   */
+  async getMessageCoinBalanceForSpot(lon, lat) {
+    const balance = await this._directNetworkContract.getMessageCoinBalanceForSpot( lon, lat, { from: this.connectedAccount });
+    return balance;
+  }
+  /*
+getTeasedMessagesForSpot(uint32 longitude, uint32 latitude)
+*/
+  async getTeasedMessagForSpot(lon, lat) {
+    const teasedMessages = await this._directNetworkContract.getTeasedMessagesForSpot( lon, lat, { from: this.connectedAccount });
+    return teasedMessages;
+  }
+
+  /*
+getUnlockedMessage(uint128 messageTokenId)
+*/
+  async getUnlockedMessage(messageTokenId) {
+    const message = await this._directNetworkContract.getUnlockedMessage(messageTokenId, { from: this.connectedAccount });
+    return message;
+  }
+  /*
+upvoteMessage(uint128 messageTokenId)
+*/
+  async upvoteMessage(messageTokenId) {
+
+    return success;
+  }
+  /*
+convertFameToMessageCoin(uint32 longitude, uint32 latitude)
+*/
+  async convertFameToMessageCoin(lon, lat) {
+
+    return success;
+  }
+  /*
+getFameCoinBalance()
+*/
+  async getFameCoinBalance() {
+    const balance = await this._directNetworkContract.getFameCoinBalance({ from: this.connectedAccount });   
+    return balance;
+  }
+
+  async getMessageCoinBalanceForSpot(lon, lat)
+  {
+    const balance = await this._directNetworkContract.getMessageCoinBalanceForSpot(lon, lat, { from: this.connectedAccount });   
+    return balance;
+  }
 
 }

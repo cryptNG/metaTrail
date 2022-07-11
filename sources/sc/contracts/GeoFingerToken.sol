@@ -152,11 +152,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
 
         for (uint256 i = 0; i < messagesForSpot.length; i++) {
             messages[i] = MessageContainer(
-                _substring(
-                    messagesForSpot[i],
-                    0,
-                    (uint16(bytes(messagesForSpot[i]).length / 5)) + 3
-                )
+                messagesForSpot[i]
                 ,
                 uint128(i + uint128(spotId) * _maxMessageTokenPerSpot)
             );

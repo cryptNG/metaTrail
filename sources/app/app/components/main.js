@@ -26,8 +26,7 @@ export default class MainComponent extends Component {
   arithmeticLocation = {lat: 0, lon: 0}
 
   get isAppReady() {
-   return this.walletConnect.isConnected;
-   // return this.isTracking && this.web3service.isConnected && this.lat != -1 && this.lon != -1;
+   return this.isTracking && this.walletConnect.isConnected && this.lat != -1 && this.lon != -1;
   }
 
 
@@ -62,7 +61,7 @@ export default class MainComponent extends Component {
     try {
       
       this.setStatusMessage('asking blockchain for messages');
-      const _tmessages = await this.web3service.getTeasedMessagForSpot(this.arithmeticLocation.lon,this.arithmeticLocation.lat);
+      const _tmessages = await this.walletConnect.getTeasedMessagForSpot(this.arithmeticLocation.lon,this.arithmeticLocation.lat);
       this.lastMessages = _tmessages.map((tm)=>tm.message);
 
 
@@ -104,7 +103,7 @@ export default class MainComponent extends Component {
      
 
     } catch (reason) {
-      this.setAppErrorMessage(this.getSolutionForErrorCode(reason.data.reason.match("\\[.*]")));
+      this.setAppErrorMessage(this.getSolutionForErrorCode(reason.message.match("\\[.*?]")[0]));
       this.toggleIsShowingErrorModal();
     } 
     this.isMinting = false;
@@ -222,7 +221,8 @@ console.log('retrievelocation, requestpending: ' + this.isRequestPending);
   //expects the code without brackets
   getSolutionForErrorCode(code)
   {
-    return this._requireSolutions[this._requireSolutions.indexOf(code) + 1];
+    console.log(code);
+    return this._requireSolutions[code];
   }
 
 
@@ -231,17 +231,17 @@ console.log('retrievelocation, requestpending: ' + this.isRequestPending);
 
 
 _requireSolutions =
-[
-  '[RQ001]', 'Please come back later, if possible, keep up with our social media to stay informed about any issues',
-  '[RQ002]', 'Type something into the message field!',
-  '[RQ003]', 'You do not have enough fame! Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',
-  '[RQ004]', 'There might have been an error with your location service, refresh the page, if that does not work, restart your device.',
-  '[RQ005]', 'You did not unlock this message, this has to be an error in the application, refresh and try again, if that does not work, wait a few minutes and try again.',
-  '[RQ006]', 'You do not have enough fame to vote! Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',        
-  '[RQ007]', 'There has been an internal error in the application! Please refresh the page, if the error persists, restart your device!',
-  '[RQ008]', 'You do not have enough fame for this action!  Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',
-  '[RQ009]', 'You do not have messagecoins for this spot! You can convert fame into messageCoins and create messages, either do this manually or enable autoConvert!'
-]
+{
+  '[RQ001]': 'Please come back later, if possible, keep up with our social media to stay informed about any issues',
+  '[RQ002]': 'Type something into the message field!',
+  '[RQ003]': 'You do not have enough fame! Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',
+  '[RQ004]': 'There might have been an error with your location service, refresh the page, if that does not work, restart your device.',
+  '[RQ005]': 'You did not unlock this message, this has to be an error in the application, refresh and try again, if that does not work, wait a few minutes and try again.',
+  '[RQ006]': 'You do not have enough fame to vote! Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',        
+  '[RQ007]': 'There has been an internal error in the application! Please refresh the page, if the error persists, restart your device!',
+  '[RQ008]': 'You do not have enough fame for this action!  Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',
+  '[RQ009]': 'You do not have messagecoins for this spot! You can convert fame into messageCoins and create messages, either do this manually or enable autoConvert!'
+}
 
 
 }
