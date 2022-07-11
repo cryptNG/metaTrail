@@ -357,7 +357,7 @@ export default class WalletConnectService extends Service {
                   "type": "uint128"
                 }
               ],
-              "internalType": "struct GeoFingerToken.MessageContainer[]",
+              "internalType": "struct MetaTrailToken.MessageContainer[]",
               "name": "",
               "type": "tuple[]"
             }

@@ -353,7 +353,7 @@ export default class Web3service extends Service.extend({}) {
               "type": "uint128"
             }
           ],
-          "internalType": "struct GeoFingerToken.MessageContainer[]",
+          "internalType": "struct MetaTrailToken.MessageContainer[]",
           "name": "",
           "type": "tuple[]"
         }
