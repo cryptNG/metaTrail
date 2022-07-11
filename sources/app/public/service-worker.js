@@ -33,7 +33,7 @@ self.addEventListener('message', (event) => {
 //   )
 // })
 
-
+//local walletconnect here
 self.addEventListener('fetch', function fetcher (event) {
   var request = event.request;
   // check if request 

@@ -10,9 +10,9 @@
     {{/if}}
     <div class="connect-right">
     {{#if this.walletConnect.isConnected}}
-    <button class="raise-button with-shadow connectbtn ripple disabled" style="background-color: #da1f1fb2; color: white;" type="button" {{on 'click' this.disconnect}}>Disconnect</button>
+    <button class="raise-button with-shadow connectbtn ripple disabled" style="background-color: #da1f1fb2; color: white;" type="button" {{on 'click' this.disconnect}}>DISCONNECT</button>
     {{else}}
-    <button class="raise-button with-shadow connectbtn ripple" style="background-color: #da1f1fb2; color: white;" type="button"  {{action this.connect}}>CONNECT METAMASK</button>
+    <button class="raise-button with-shadow connectbtn ripple" style="background-color: #da1f1fb2; color: white;" type="button"  {{action this.connect}}>CONNECT</button>
     {{/if}}
     </div>
      </div> 
