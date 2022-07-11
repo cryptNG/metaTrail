@@ -761,9 +761,9 @@ export default class Web3service extends Service.extend({}) {
   ] //abi goes here
   _web3addr = 'https://yitc.ddns.net:8545';
   //_web3addr = 'http://127.0.0.1:9545';
-  _geofinger_contract_address = '0x94A185f415a986aeF85a79029f5d1bEeE1a9ED1d';
+  _metatrail_contract_address = '0x94A185f415a986aeF85a79029f5d1bEeE1a9ED1d';
   _lweb3 = new Web3(this._web3addr);
-  _directNetworkContract = new this._lweb3.eth.Contract(this._abi, this._geofinger_contract_address);
+  _directNetworkContract = new this._lweb3.eth.Contract(this._abi, this._metatrail_contract_address);
   _metamask = null;
   hasWalletEventsSet = false;
   @tracked _isMintingActive = false;
@@ -785,7 +785,7 @@ export default class Web3service extends Service.extend({}) {
       console.debug('registering web3 handlers');
 
       window.web3 = new Web3(window.ethereum);
-      this._metamask = new window.web3.eth.Contract(this._abi, this._geofinger_contract_address);
+      this._metamask = new window.web3.eth.Contract(this._abi, this._metatrail_contract_address);
 
 
       window.ethereum.on("disconnect", (error) => {

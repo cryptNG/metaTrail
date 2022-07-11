@@ -1,7 +1,7 @@
 import Application from '@ember/application';
 import Resolver from 'ember-resolver';
 import loadInitializers from 'ember-load-initializers';
-import config from 'geofinger/config/environment';
+import config from 'metatrail/config/environment';
 import Buffer from 'buffer';
 
 export default class App extends Application {

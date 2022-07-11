@@ -66,10 +66,10 @@
     // work with TypeScript.
     "baseUrl": ".",
     "paths": {
-      "geofinger/tests/*": [
+      "metatrail/tests/*": [
         "tests/*"
       ],
-      "geofinger/*": [
+      "metatrail/*": [
         "app/*"
       ],
       "*": [

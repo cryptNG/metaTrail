@@ -766,9 +766,9 @@ export default class WalletConnectService extends Service {
 
     _web3addr = 'https://testnet.cryptng.com:8545';
     //_web3addr = 'http://127.0.0.1:9545';
-    _geofinger_contract_address = '0x24dFe081d6e0530E65Da7d94bD8E3D9f8955bb6D';
+    _metatrail_contract_address = '0x24dFe081d6e0530E65Da7d94bD8E3D9f8955bb6D';
     _provider = new providers.JsonRpcProvider(this._web3addr)
-    _directNetworkContract = new Contract(this._geofinger_contract_address,this._abi,this._provider);
+    _directNetworkContract = new Contract(this._metatrail_contract_address,this._abi,this._provider);
   
 
     @tracked connector;
@@ -884,7 +884,7 @@ export default class WalletConnectService extends Service {
         const data = this._directNetworkContract.interface.encodeFunctionData("mintMessage", [ message, lon, lat, autoconvert ]);
       //     const tx = {
       //       from: this.connectedAccount,
-      //       to: this._geofinger_contract_address,
+      //       to: this._metatrail_contract_address,
       //       nonce: nonce,
       //       gasPrice: estimatedGasSpending,
       //       gasLimit: gasLimit,
@@ -902,7 +902,7 @@ export default class WalletConnectService extends Service {
       console.log('nonce: ' + nonce);
         const tx = {
             from: this.connectedAccount,
-            to: this._geofinger_contract_address,
+            to: this._metatrail_contract_address,
             nonce: nonce,
             gasPrice: estimatedGasSpending,
             gasLimit: gasLimit,

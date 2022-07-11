@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   let ENV = {
-    modulePrefix: 'geofinger',
+    modulePrefix: 'metatrail',
     environment,
     rootURL: '/',
     locationType: 'history',

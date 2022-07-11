@@ -1,5 +1,5 @@
-import Application from 'geofinger/app';
-import config from 'geofinger/config/environment';
+import Application from 'metatrail/app';
+import config from 'metatrail/config/environment';
 import * as QUnit from 'qunit';
 import { setApplication } from '@ember/test-helpers';
 import { setup } from 'qunit-dom';
