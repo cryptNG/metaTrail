@@ -5,7 +5,6 @@ import { tracked } from '@glimmer/tracking';
 
 export default class MainComponent extends Component {
   @tracked locationDisplay = null;
-  @tracked isTracking = false;
   @tracked displayGeoLocationRequestButton = false; //some browsers support requesting location permissions explicitly.
   @tracked lat = -1;
   @tracked lon = -1;
@@ -17,16 +16,23 @@ export default class MainComponent extends Component {
   @tracked isShowingErrorModal = false;
   @service web3service;
   @service walletConnect;
+  @service positioning;
   
   @tracked statusMessage = '';
+  @tracked posMessage = '';
   @tracked bigStatus = 'please wait a few seconds while i fetch your location!';
   isRequestPending = false;
   appErrorMessage = '';
   blockchainRetries = 1;
   arithmeticLocation = {lat: 0, lon: 0}
+  serverRetries=0;
 
   get isAppReady() {
-   return this.isTracking && this.walletConnect.isConnected && this.lat != -1 && this.lon != -1;
+   return this.positioning.isTracking && this.walletConnect.isConnected && this.isValidPosition;
+  }
+
+  get isValidPosition(){
+    return this.positioning.arithmeticLocation.lat != -1000000 && this.positioning.arithmeticLocation.lon != -1000000
   }
 
 
@@ -58,10 +64,12 @@ export default class MainComponent extends Component {
 
 
   @action async retrieveMessages() {
+    this.isRequestPending = true;
+    if(!this.positioning.isTracking) return;
     try {
       
       this.setStatusMessage('asking blockchain for messages');
-      const _tmessages = await this.walletConnect.getTeasedMessagForSpot(this.arithmeticLocation.lon,this.arithmeticLocation.lat);
+      const _tmessages = await this.walletConnect.getTeasedMessagForSpot(this.positioning.arithmeticLocation.lon,this.positioning.arithmeticLocation.lat);
       this.lastMessages = _tmessages.map((tm)=>tm.message);
 
 
@@ -72,7 +80,7 @@ export default class MainComponent extends Component {
       if(this.serverRetries >= 6)
       {
         this.bigStatus = 'blockchain connection cannot be established, please come back later';
-        this.serverRetries = 1;
+        
         this.setStatusMessage('maybe try refreshing this window?');
         return;
       }
@@ -111,82 +119,35 @@ export default class MainComponent extends Component {
   }
 
   @action async setUserLocation() {
+    this.positioning.updatePosition.on(this.updatePositionEvent)
     let ready = await this.handlePermission();
     console.debug('appstate: ' + ready);
-    if (ready == true) {
+    if (ready == true && !this.positioning.isTracking) {
       //handle requesting permissions
-      this.isTracking = true;
-      this.performInfinite();
+      this.positioning.performInfinite();
     }
   }
 
-  retrieveLocation = () => {
-    
-console.log('retrievelocation, requestpending: ' + this.isRequestPending);
-    this.isRequestPending = true;
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        this.showPosition,
-        this.showError,
-        { maximumAge: 2000, timeout: 5000, enableHighAccuracy: true }
-      );
-    } else {
-      this.setStatusMessage('geolocation is not supported by this browser.');
-    }
-  };
 
-  //this kind of function header will preserve the this context
-  showPosition = (position) => {
-    this.lat = position.coords.latitude;
-    this.lon = position.coords.longitude;
-    this.locationDisplay = 'LAT: ' + this.lat + ' LONG: ' + this.lon;
-    this.setStatusMessage(this.locationDisplay);
-    let arithLat = Math.trunc(this.lat * 1000000);
-    let arithLon = Math.trunc(this.lon * 1000000);
-    this.arithmeticLocation = {lat:arithLat,lon:arithLon};
-
-    this.bigStatus = 'found you! establishing connection to blockchain...';
-    this.retrieveMessages();
-  };
-  
-  showError = (error) => {
-
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        this.setStatusMessage('user denied the request for geolocation.');
-        break;
-      case error.POSITION_UNAVAILABLE:
-        this.setStatusMessage('location information is unavailable.');
-        break;
-      case error.TIMEOUT:
-        this.setStatusMessage('the request to get user location timed out.');
-        break;
-      case error.UNKNOWN_ERROR:
-        this.setStatusMessage('an unknown error occurred.');
-        break;
-    }
-
-    this.isRequestPending = false;
-  }
 
   setStatusMessage(msg) {
     this.statusMessage = msg;
+  }
+
+  updatePositionEvent=(msg)=> {
+    this.posMessage=msg;
+    if(!this.isRequestPending)
+    {
+      this.serverRetries = 0;
+      this.setStatusMessage(msg);
+      this.retrieveMessages();
+    }
   }
 
   setAppErrorMessage(msg) {
     this.appErrorMessage = msg;
   }
 
-  performInfinite() {
-    setTimeout(
-      function (that) {
-        if(!this.isRequestPending) that.retrieveLocation();
-        that.performInfinite();
-      },
-      2000,
-      this
-    );
-  }
 
   async handlePermission() {
     //return true if permissions are in order

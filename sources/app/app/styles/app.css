@@ -8,6 +8,21 @@
     src: url("webfonts/Quicksand-VariableFont_wght.ttf");
     font-display: swap;
 }
+
+body{
+        
+  background: linear-gradient(#0c2066, #4c9b93);
+  margin:0;
+  height: 100vh;
+  width: 100vw;
+  color: white;
+  
+    
+}
+
+#world-svg{
+  position:fixed;
+}
 .results{
   width: 100%;
   display: flex;
