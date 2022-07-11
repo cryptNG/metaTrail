@@ -5,17 +5,6 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 module.exports = function (defaults) {
 
   let options = {
-    'ember-cli-image-transformer': {
-      images: [
-        {
-          inputFilename: 'app/images/air2_small.jpg',
-          outputFileName: 'appicon-',
-          convertTo: 'png',
-          destination: 'assets/icons/',
-          sizes: [32, 192, 280, 512],
-        },
-      ],
-    },
   };
 
 
