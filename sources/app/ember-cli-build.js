@@ -3,9 +3,23 @@
 const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function (defaults) {
-  let app = new EmberApp(defaults, {
-    // Add options here
-  });
+
+  let options = {
+    'ember-cli-image-transformer': {
+      images: [
+        {
+          inputFilename: 'app/images/air2_small.jpg',
+          outputFileName: 'appicon-',
+          convertTo: 'png',
+          destination: 'assets/icons/',
+          sizes: [32, 192, 280, 512],
+        },
+      ],
+    },
+  };
+
+
+  let app = new EmberApp(defaults, options);
 
   // Use `app.import` to add additional libraries to the generated
   // output files.
@@ -20,20 +34,20 @@ module.exports = function (defaults) {
   // please specify an object with the list of modules as keys
   // along with the exports of each module as its value.
 
- // return app.toTree();
-  const { Webpack } = require('@embroider/webpack');
-  return require('@embroider/compat').compatBuild(app, Webpack,
-    {
-      packagerOptions: {
-      webpackConfig: {
-        // resolve: {fallback: {
-        //   "stream": require.resolve("stream-browserify"),
-        //   "http": require.resolve("stream-http"),
-        //   "https": require.resolve("https-browserify"),
-        //   "os": require.resolve("os-browserify/browser")
-        // }}
-        // //resolve: {fallback: {"stream": false, "http": false, "os": false, "https": false}}
-       }
-      }
-    });
+  return app.toTree();
+  // const { Webpack } = require('@embroider/webpack');
+  // return require('@embroider/compat').compatBuild(app, Webpack,
+  //   {
+  //     packagerOptions: {
+  //     webpackConfig: {
+  //       // resolve: {fallback: {
+  //       //   "stream": require.resolve("stream-browserify"),
+  //       //   "http": require.resolve("stream-http"),
+  //       //   "https": require.resolve("https-browserify"),
+  //       //   "os": require.resolve("os-browserify/browser")
+  //       // }}
+  //       // //resolve: {fallback: {"stream": false, "http": false, "os": false, "https": false}}
+  //      }
+  //     }
+  //   });
 };
