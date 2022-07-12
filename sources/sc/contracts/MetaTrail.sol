@@ -189,7 +189,7 @@ contract MetaTrail is Context, ERC165, IERC721, IERC721Metadata, Ownable {
 
     function getUnlockedCacheEntries(uint128 cacheTokenId) public view returns (string[] memory)
     {
-        require(_ownerUnlockedCaches[_msgSender()][cacheTokenId] == true || _cacheCreators[cacheTokenId] == _msgSender(), '[RQ005] this message was never unlocked with fame');
+        require(_ownerUnlockedCaches[_msgSender()][cacheTokenId] == true, '[RQ005] this message was never unlocked with fame');
         
         return _cacheEntries[cacheTokenId];
     }
@@ -289,22 +289,32 @@ contract MetaTrail is Context, ERC165, IERC721, IERC721Metadata, Ownable {
         _fameWallet[receiver] = _fameWallet[receiver] + amt;
     }
 
+    function _getSenderCacheTokenIdIfExists(uint64 spotId) internal view  returns (uint128)
+    {
+        for(uint i = 0; i < _spotCaches[spotId].length; i++)
+        {
+        uint128 cacheTokenId = _getCacheTokenIdFromSpotIdAndCacheIndex(spotId,i);
+        if(_existsCache(cacheTokenId)) return cacheTokenId;
+        }
+        return 0;
+    }
+
     function _mintEntryOnSpot(
         uint64 spotId,
         string memory message
     ) internal {
       
-      
+      uint128 cacheTokenId = _getSenderCacheTokenIdIfExists(spotId);
 
-        uint128 cacheTokenId = _getCacheTokenIdFromSpotIdAndCacheIndex(spotId,_spotCaches[spotId].length);
-        if(!_existsCache(cacheTokenId))
+        if(cacheTokenId == 0)
         {
-            
+            cacheTokenId = _getCacheTokenIdFromSpotIdAndCacheIndex(spotId,_spotCaches[spotId].length);
             require(bytes(message).length <= 30, '[RQ010] a cache name cannot exceed 15 characters!');
 
             _spotCaches[spotId].push(message); //this sets cacheid
             _voteWallet[cacheTokenId] = 0;
             _cacheCreators[cacheTokenId] = _msgSender();
+            _ownerUnlockedCaches[_msgSender()][cacheTokenId] = true;
             _payCacheCreationCost(spotId);
             emit MintedCache(_msgSender(), spotId, cacheTokenId,_fameWallet[_msgSender()]);
         }

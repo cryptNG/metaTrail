@@ -80,7 +80,7 @@ export default class MainComponent extends Component {
       const pos = this.positioning.arithmeticLocation();
       const _tmessages = await this.walletConnect.getCachesForSpot(pos.lon,pos.lat);
       this.locationCaches = _tmessages.map((tm)=>
-      {return  {message: tm.message, author: tm.author, unlocked: tm.unlocked, quantity: tm.quantity, isOwn: tm.author == this.walletConnect.connectedAccount}});
+      {return  {title: tm.title, author: tm.author, unlocked: tm.unlocked, quantity: tm.quantity, tokenId: tm.tokenId ,isOwn: tm.author == this.walletConnect.connectedAccount}});
 
 
     } catch (reason) {

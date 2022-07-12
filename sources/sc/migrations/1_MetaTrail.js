@@ -1,4 +1,4 @@
-const Token = artifacts.require("GeoFingerToken");
+const Token = artifacts.require("MetaTrail");
 
 //ngc generate from-abi -abi BasicEvidencingToken.abi -o . -ns CryptNG.Autogen
 
@@ -15,5 +15,6 @@ module.exports = function (deployer) {
 
 
 
-    
+  
+
   

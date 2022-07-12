@@ -76,31 +76,6 @@ export default class WalletConnectService extends Service {
           },
           {
             "indexed": false,
-            "internalType": "uint16",
-            "name": "currentFameBalance",
-            "type": "uint16"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint16",
-            "name": "currentSpotCacheCoinBalance",
-            "type": "uint16"
-          }
-        ],
-        "name": "ConvertedFameToCacheCoin",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "sender",
-            "type": "address"
-          },
-          {
-            "indexed": false,
             "internalType": "uint64",
             "name": "spotId",
             "type": "uint64"
@@ -115,12 +90,6 @@ export default class WalletConnectService extends Service {
             "indexed": false,
             "internalType": "uint16",
             "name": "currentFameBalance",
-            "type": "uint16"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint16",
-            "name": "currentSpotCacheCoinBalance",
             "type": "uint16"
           }
         ],
@@ -209,12 +178,6 @@ export default class WalletConnectService extends Service {
             "internalType": "uint16",
             "name": "currentFameBalance",
             "type": "uint16"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint16",
-            "name": "currentSpotCacheCoinBalance",
-            "type": "uint16"
           }
         ],
         "name": "SpotClaimed",
@@ -271,12 +234,6 @@ export default class WalletConnectService extends Service {
             "internalType": "uint16",
             "name": "currentFameBalance",
             "type": "uint16"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint16",
-            "name": "currentSpotCacheCoinBalance",
-            "type": "uint16"
           }
         ],
         "name": "UnlockedCache",
@@ -293,7 +250,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [],
@@ -339,7 +297,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [],
@@ -366,7 +325,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -384,11 +344,6 @@ export default class WalletConnectService extends Service {
             "internalType": "uint32",
             "name": "latitude",
             "type": "uint32"
-          },
-          {
-            "internalType": "bool",
-            "name": "autoConvertFame",
-            "type": "bool"
           }
         ],
         "name": "mintEntry",
@@ -415,7 +370,7 @@ export default class WalletConnectService extends Service {
             "components": [
               {
                 "internalType": "string",
-                "name": "message",
+                "name": "title",
                 "type": "string"
               },
               {
@@ -427,6 +382,16 @@ export default class WalletConnectService extends Service {
                 "internalType": "address",
                 "name": "author",
                 "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "unlocked",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint32",
+                "name": "quantity",
+                "type": "uint32"
               }
             ],
             "internalType": "struct MetaTrail.CacheContainer[]",
@@ -435,7 +400,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -458,7 +424,7 @@ export default class WalletConnectService extends Service {
             "type": "uint128"
           }
         ],
-        "name": "getUnlockedCacheMessages",
+        "name": "getUnlockedCacheEntries",
         "outputs": [
           {
             "internalType": "string[]",
@@ -467,7 +433,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -483,48 +450,6 @@ export default class WalletConnectService extends Service {
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "uint32",
-            "name": "longitude",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "latitude",
-            "type": "uint32"
-          }
-        ],
-        "name": "convertFameToCacheCoin",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint32",
-            "name": "longitude",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "latitude",
-            "type": "uint32"
-          }
-        ],
-        "name": "getCacheCoinBalanceForSpot",
-        "outputs": [
-          {
-            "internalType": "uint16",
-            "name": "",
-            "type": "uint16"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [],
         "name": "getFameBalance",
         "outputs": [
@@ -535,7 +460,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -564,7 +490,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "pure",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [],
@@ -577,7 +504,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -596,7 +524,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -615,7 +544,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -634,7 +564,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [],
@@ -647,7 +578,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [],
@@ -660,7 +592,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -679,7 +612,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -716,7 +650,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -758,7 +693,8 @@ export default class WalletConnectService extends Service {
           }
         ],
         "stateMutability": "view",
-        "type": "function"
+        "type": "function",
+        "constant": true
       },
       {
         "inputs": [
@@ -838,7 +774,7 @@ export default class WalletConnectService extends Service {
 
     _web3addr = 'https://testnet.cryptng.com:8545';
     //_web3addr = 'http://127.0.0.1:9545';
-    _metatrail_contract_address = '0x24dFe081d6e0530E65Da7d94bD8E3D9f8955bb6D';
+    _metatrail_contract_address = '0x6E252b939974FA1360b293F8732316aEd085dd84';
     _provider = new providers.JsonRpcProvider(this._web3addr)
     _directNetworkContract = new Contract(this._metatrail_contract_address,this._abi,this._provider);
   
@@ -944,13 +880,13 @@ export default class WalletConnectService extends Service {
         this._isMintingActive = res;
       }
 
-      async mintMessage(message, lon, lat, autoconvert) {
+      async mintMessage(message, lon, lat) {
         const iface = new utils.Interface(this._abi);
         const nonce = await this._provider.getTransactionCount(this.connectedAccount);
-        const estimatedGasSpending = utils.hexlify(await this._directNetworkContract.estimateGas.mintEntry(message, lon, lat, autoconvert, {from: this.connectedAccount}));console.log('gas estimate: ' + estimatedGasSpending);
+        const estimatedGasSpending = utils.hexlify(await this._directNetworkContract.estimateGas.mintEntry(message, lon, lat, {from: this.connectedAccount}));console.log('gas estimate: ' + estimatedGasSpending);
         const feeData = await this._provider.getFeeData();
         const value = utils.hexlify(0);
-        const data = this._directNetworkContract.interface.encodeFunctionData("mintEntry", [ message, lon, lat, autoconvert ]);
+        const data = this._directNetworkContract.interface.encodeFunctionData("mintEntry", [ message, lon, lat ]);
       
       console.log('nonce: ' + nonce);
         const tx = {

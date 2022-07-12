@@ -23,6 +23,7 @@ export default class CollapsibleCacheElement extends Component<CollapsibleCacheE
     {
         if(this.entries != null || !this.args.unlocked) return;
         this.entries = await this.walletConnect.getUnlockedCacheEntries(this.args.tokenId);
+        console.log(this.entries);
     }
 
     toggleCollapsible()

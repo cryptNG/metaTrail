@@ -349,10 +349,9 @@ span.invalid-message.active {
   {{#if this.isAppReady}}
 
     <div class="results-showcase{{if this.hasMessages ' has-results'}}">
-      <span class="clear-results" {{on 'click' this.clearMessages}}>clear</span>
       <div class="results">
         {{#each this.locationCaches as |cache|}}
-          <CollapsibleCacheElement @tokenId={{cache.cacheTokenId}} @title={{cache.cacheTokenId}} @author={{cache.author}} @unlocked={{cache.unlocked}} @quantity={{cache.quantity}} @isOwn={{this.hasOwnCache}} @unlockAction={{fn this.unlockCache cache.cacheTokenId}}/>
+          <CollapsibleCacheElement @tokenId={{cache.tokenId}} @title={{cache.title}} @author={{cache.author}} @unlocked={{cache.unlocked}} @quantity={{cache.quantity}} @isOwn={{this.hasOwnCache}} @unlockAction={{fn this.unlockCache cache.tokenId}}/>
         {{/each}}
         
       </div>

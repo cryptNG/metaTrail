@@ -1,11 +1,11 @@
-const tokenContract = artifacts.require("GeoFingerToken");
+const tokenContract = artifacts.require("MetaTrail");
 const truffleAssertions = require('truffle-assertions');
 const truffleAssert = require('truffle-assertions');
 const Web3 = require('web3');
 const BN = require('bn.js');
 let _tokens = [];  
 
-contract('GeoFingerToken: full integration', async (accounts) => {
+contract('MetaTrail: full integration', async (accounts) => {
     const [deployerAddress, tokenHolderOneAddress, tokenHolderTwoAddress] = accounts;
    
     const web3 = config.network==='develop' ||  config.network==='test'? new Web3('http://127.0.0.1:9545'):await (async (config)=>{
