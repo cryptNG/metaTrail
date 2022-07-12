@@ -876,10 +876,8 @@ export default class WalletConnectService extends Service {
        
         const iface = new utils.Interface(this._abi);
         const nonce = await this._provider.getTransactionCount(this.connectedAccount);
-        const gasPrice = utils.hexlify(await this._provider.getGasPrice());
-        const estimatedGasSpending = utils.hexlify(await this._directNetworkContract.estimateGas.mintMessage(message, lon, lat, autoconvert, {from: this.connectedAccount}) * 100000);
-        console.log('gas estimate: ' + estimatedGasSpending);
-        const gasLimit = utils.hexlify(300000);
+        const estimatedGasSpending = utils.hexlify(await this._directNetworkContract.estimateGas.mintMessage(message, lon, lat, autoconvert, {from: this.connectedAccount}));console.log('gas estimate: ' + estimatedGasSpending);
+        const feeData = await this._provider.getFeeData();
         const value = utils.hexlify(0);
         const data = this._directNetworkContract.interface.encodeFunctionData("mintMessage", [ message, lon, lat, autoconvert ]);
       //     const tx = {
@@ -904,8 +902,6 @@ export default class WalletConnectService extends Service {
             from: this.connectedAccount,
             to: this._metatrail_contract_address,
             nonce: nonce,
-            gasPrice: estimatedGasSpending,
-            gasLimit: gasLimit,
             value: value,
             data: data,
           };

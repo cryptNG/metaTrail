@@ -24,7 +24,6 @@ export default class MainComponent extends Component {
   isRequestPending = false;
   appErrorMessage = '';
   blockchainRetries = 1;
-  arithmeticLocation = {lat: 0, lon: 0}
   serverRetries=0;
 
   get isAppReady() {
@@ -32,7 +31,8 @@ export default class MainComponent extends Component {
   }
 
   get isValidPosition(){
-    return this.positioning.arithmeticLocation.lat != -1000000 && this.positioning.arithmeticLocation.lon != -1000000
+    const pos =this.positioning.arithmeticLocation();
+    return pos.lat != -1000000 && pos.lon != -1000000
   }
 
 
@@ -69,7 +69,8 @@ export default class MainComponent extends Component {
     try {
       
       this.setStatusMessage('asking blockchain for messages');
-      const _tmessages = await this.walletConnect.getTeasedMessagForSpot(this.positioning.arithmeticLocation.lon,this.positioning.arithmeticLocation.lat);
+      const pos = this.positioning.arithmeticLocation();
+      const _tmessages = await this.walletConnect.getTeasedMessagForSpot(pos.lon,pos.lat);
       this.lastMessages = _tmessages.map((tm)=>tm.message);
 
 
@@ -107,7 +108,10 @@ export default class MainComponent extends Component {
     try {
       this.isMinting = true;
       this.setStatusMessage('sending messsage');
-      await this.walletConnect.mintMessage(this.enteredMessage,this.arithmeticLocation.lon, this.arithmeticLocation.lat, true);
+      const pos =this.positioning.arithmeticLocation();
+      const lon =pos.lon;
+      const lat =pos.lat;
+      await this.walletConnect.mintMessage(this.enteredMessage,lon, lat, true);
      
 
     } catch (reason) {

@@ -29,7 +29,7 @@ export default class Positioning extends Service.extend({
         if(!this.isRequestPending) that.retrieveLocation();
         that.performInfinite();
       },
-      2000,
+      4000,
       this
     );
   }
@@ -54,7 +54,7 @@ export default class Positioning extends Service.extend({
   };
 
   consumePosition = (position) => {
-    if(this.histTracked<5){
+    if(this.histTracked<3){
       this.histTracked++;
       return;
     }
@@ -76,10 +76,10 @@ export default class Positioning extends Service.extend({
     this.updatetStatusMessage(locationDisplay);
   }
 
-  get arithmeticLocation(){
+  arithmeticLocation(){
     let arithLat = Math.trunc(this.centeredLatitude * 1000000);
     let arithLon = Math.trunc(this.centeredLongitude * 1000000);
-   return {lat:arithLat,lon:arithLon};
+   return {lat:arithLat*1,lon:arithLon*1};
   }
 
   updatetStatusMessage(msg) {
