@@ -352,7 +352,8 @@ span.invalid-message.active {
       </div>
 
     </div>
-  
+  {{else}}
+    <Ux::InlineLoader @active={{this.positioning.isTracking}}/>
   {{/if}}
   {{#unless this.positioning.isTracking}}
   <div class="messagetitle">

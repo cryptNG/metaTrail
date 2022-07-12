@@ -1,5 +1,21 @@
+<style>
+  .shadow {
+    -webkit-filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+    filter: drop-shadow( 3px 3px 2px rgba(0, 0, 0, .7));
+    position: relative;
+    top: 5px;
+    cursor: pointer;
+  }
+
+  .cross{
+    stroke:#be0000;
+  }
+  .shadow:hover .cross{
+    stroke:#e41e1e;
+  }
+</style>
 <div class="dashbar">
-<CryptologoBanner @project="geoFinger"></CryptologoBanner>
+<CryptologoBanner @project="metaTrail"></CryptologoBanner>
   
   <div class="connectinfo">
     {{#if this.walletConnect.isConnected}}
@@ -10,7 +26,103 @@
     {{/if}}
     <div class="connect-right">
     {{#if this.walletConnect.isConnected}}
-    <button class="raise-button with-shadow connectbtn ripple disabled" style="background-color: #da1f1fb2; color: white;" type="button" {{on 'click' this.disconnect}}>DISCONNECT</button>
+      <div  {{on 'click' this.disconnect}}>
+    <
+    <svg title="Disconnect from wallet" class="shadow" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 506.15743 463.98715" style="enable-background:new 0 0 500 500;" height="40" xml:space="preserve">
+<defs
+   id="defs46"><filter
+   style="color-interpolation-filters:sRGB;"
+   inkscape:label="Drop Shadow"
+   id="filter1437"
+   x="-0.13126899"
+   y="-0.13172125"
+   width="1.3026437"
+   height="1.297495"><feFlood
+     flood-opacity="0.498039"
+     flood-color="rgb(0,0,0)"
+     result="flood"
+     id="feFlood1427" /><feComposite
+     in="flood"
+     in2="SourceGraphic"
+     operator="in"
+     result="composite1"
+     id="feComposite1429" /><feGaussianBlur
+     in="composite1"
+     stdDeviation="6"
+     result="blur"
+     id="feGaussianBlur1431" /><feOffset
+     dx="6"
+     dy="6"
+     result="offset"
+     id="feOffset1433" /><feComposite
+     in="SourceGraphic"
+     in2="offset"
+     operator="over"
+     result="fbSourceGraphic"
+     id="feComposite1435" /><feColorMatrix
+     result="fbSourceGraphicAlpha"
+     in="fbSourceGraphic"
+     values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+     id="feColorMatrix3327" /><feFlood
+     id="feFlood3329"
+     flood-opacity="0.498039"
+     flood-color="rgb(0,0,0)"
+     result="flood"
+     in="fbSourceGraphic" /><feComposite
+     in2="fbSourceGraphic"
+     id="feComposite3331"
+     in="flood"
+     operator="in"
+     result="composite1" /><feGaussianBlur
+     id="feGaussianBlur3333"
+     in="composite1"
+     stdDeviation="6"
+     result="blur" /><feOffset
+     id="feOffset3335"
+     dx="7"
+     dy="5"
+     result="offset" /><feComposite
+     in2="offset"
+     id="feComposite3337"
+     in="fbSourceGraphic"
+     operator="over"
+     result="composite2" /></filter>
+	
+
+		
+	
+			
+			
+			
+		</defs>
+<path
+   d="m 375.96739,307.47755 v 0 c -21.972,-0.001 -39.848,-17.876 -39.848,-39.848 v -66.176 c 0,-21.972 17.876,-39.847 39.848,-39.847 h 103.83 c 0.629,0 1.254,0.019 1.876,0.047 V 95.731554 c 0,-16.969001 -13.756,-30.725001 -30.725,-30.725001 H 70.005394 c -16.97,-10e-4 -30.726,13.755 -30.726,30.724001 V 373.35155 c 0,16.969 13.756,30.726 30.726,30.726 H 450.94839 c 16.969,0 30.725,-13.756 30.725,-30.726 v -65.922 c -0.622,0.029 -1.247,0.048 -1.876,0.048 z"
+   id="path2"
+   style="fill:#5bbbce;fill-opacity:1;stroke:none;stroke-opacity:1" /><path
+   d="m 485.99429,173.98057 h -116.2238 c -11.13546,0 -20.16315,9.55801 -20.16315,21.34762 v 78.42672 c 0,11.78961 9.02769,21.34762 20.16315,21.34762 h 116.2238 c 11.13546,0 20.16315,-9.55683 20.16315,-21.34762 v -78.42672 c 0,-11.79079 -9.02769,-21.34762 -20.16315,-21.34762 z m -76.17511,91.37181 c -16.07298,0 -29.10241,-13.79483 -29.10241,-30.81202 0,-17.01718 13.02943,-30.81202 29.10241,-30.81202 16.07298,0 29.1024,13.79484 29.1024,30.81202 0,17.01719 -13.02942,30.81202 -29.1024,30.81202 z"
+   id="path4"
+   style="fill:#5bbbce;fill-opacity:1;stroke-width:1.15178" /><path
+   id="path6-7"
+   style="fill:#5bbbce;fill-opacity:1"
+   d="M 278.76367 3.6699219 C 274.86122 3.738418 270.90289 4.3869063 267.00195 5.6757812 L 110.9082 57.246094 L 325.82227 57.246094 L 325.79102 57.150391 L 220.54883 57.150391 L 315.08398 25.998047 C 308.28052 11.98664 293.9644 3.4031178 278.76367 3.6699219 z " />
+
+<g class="cross"
+   id="g1398"
+   transform="translate(51.521727,-29.250342)"
+   style="filter:url(#filter1437);stroke-opacity:1"><path
+     style="fill:none;stroke-width:27.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M -23.371726,136.33507 299.38068,459.08748"
+     id="path896" /><path
+     style="fill:none;stroke-width:27.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 300.77185,136.05683 -21.980553,458.80924"
+     id="path896-8" />
+</g><path
+   d="M 444.95077,32.168767 C 438.03298,11.283774 415.45103,-0.05310256 394.51351,6.8469944 L 237.4261,58.611781 h 216.28311 z"
+   id="path6-8"
+   style="fill:#5bbbce;fill-opacity:1;stroke:none;stroke-width:6.43253;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+</svg>
+</div>
     {{else}}
     <button class="raise-button with-shadow connectbtn ripple" style="background-color: #da1f1fb2; color: white;" type="button"  {{action this.connect}}>CONNECT</button>
     {{/if}}
