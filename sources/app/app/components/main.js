@@ -8,7 +8,7 @@ export default class MainComponent extends Component {
   @tracked displayGeoLocationRequestButton = false; //some browsers support requesting location permissions explicitly.
   @tracked lat = -1;
   @tracked lon = -1;
-  @tracked lastMessages = [];
+  @tracked locationCaches = [];
   @tracked enteredMessage =''
   @tracked invalidMessage =""
   @tracked isMinting=false;
@@ -35,6 +35,9 @@ export default class MainComponent extends Component {
     return pos.lat != -1000000 && pos.lon != -1000000
   }
 
+  get hasOwnCache(){
+    return this.locationCaches.any(x => x.author == this.walletConnect.connectedAccount);
+  }
 
 
   @action updateEnteredMessage(e)
@@ -51,11 +54,11 @@ export default class MainComponent extends Component {
   }
 
   get hasMessages(){
-    return this.lastMessages.length>0;
+    return this.locationCaches.length>0;
   }
 
   @action clearMessages(){
-    this.lastMessages.clear();
+    this.locationCaches.clear();
   }
 
   @action clearMessage(){
@@ -63,18 +66,26 @@ export default class MainComponent extends Component {
   }
 
 
-  @action async retrieveMessages() {
+  @action unlockCache(cacheTokenId)
+  {
+
+  }
+
+  @action async retrieveCaches() {
     this.isRequestPending = true;
     if(!this.positioning.isTracking) return;
     try {
       
       this.setStatusMessage('asking blockchain for messages');
       const pos = this.positioning.arithmeticLocation();
-      const _tmessages = await this.walletConnect.getTeasedMessagForSpot(pos.lon,pos.lat);
-      this.lastMessages = _tmessages.map((tm)=>tm.message);
+      const _tmessages = await this.walletConnect.getCachesForSpot(pos.lon,pos.lat);
+      this.locationCaches = _tmessages.map((tm)=>
+      {return  {message: tm.message, author: tm.author, unlocked: tm.unlocked, quantity: tm.quantity, isOwn: tm.author == this.walletConnect.connectedAccount}});
 
 
     } catch (reason) {
+      console.log("ERROR");
+      console.log(reason);
       this.setStatusMessage('server was not available or could not be reached: ' + reason);
       this.bigStatus = 'server connection failed, retrying (' + this.serverRetries + '/4)';
       this.serverRetries++;
@@ -85,7 +96,7 @@ export default class MainComponent extends Component {
         this.setStatusMessage('maybe try refreshing this window?');
         return;
       }
-      this.retrieveMessages();
+      this.retrieveCaches();
     }
     this.isRequestPending = false;
   }
@@ -132,8 +143,6 @@ export default class MainComponent extends Component {
     }
   }
 
-
-
   setStatusMessage(msg) {
     this.statusMessage = msg;
   }
@@ -144,7 +153,7 @@ export default class MainComponent extends Component {
     {
       this.serverRetries = 0;
       this.setStatusMessage(msg);
-      this.retrieveMessages();
+      this.retrieveCaches();
     }
   }
 
@@ -205,7 +214,9 @@ _requireSolutions =
   '[RQ006]': 'You do not have enough fame to vote! Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',        
   '[RQ007]': 'There has been an internal error in the application! Please refresh the page, if the error persists, restart your device!',
   '[RQ008]': 'You do not have enough fame for this action!  Claiming a new location will give you fame, alternatively, wait until some of your messages gather upvotes and earn you fame!',
-  '[RQ009]': 'You do not have messagecoins for this spot! You can convert fame into messageCoins and create messages, either do this manually or enable autoConvert!'
+  '[RQ009]': 'You do not have messagecoins for this spot! You can convert fame into messageCoins and create messages, either do this manually or enable autoConvert!',
+  '[RQ010]': 'a cache name cannot exceed 15 characters!',
+  '[RQ011]': 'this cache is full, you cannot write more messages!'
 }
 
 

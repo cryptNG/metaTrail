@@ -72,7 +72,7 @@ export default class Positioning extends Service.extend({
     const cPos = get_polygon_centroid(positions);
     this.centeredLatitude = cPos.x;
     this.centeredLongitude = cPos.y;
-    const locationDisplay = 'LAT: ' + this.centeredLatitude.toFixed(5) + ' LONG: ' + this.centeredLongitude.toFixed(5);
+    const locationDisplay = 'LAT: ' + this.centeredLatitude.toFixed(5) + ' LON: ' + this.centeredLongitude.toFixed(5);
     this.updatetStatusMessage(locationDisplay);
   }
 

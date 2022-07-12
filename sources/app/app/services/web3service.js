@@ -382,7 +382,7 @@ export default class Web3service extends Service.extend({}) {
           "type": "uint128"
         }
       ],
-      "name": "getUnlockedMessage",
+      "name": "getUnlockedCacheEntries",
       "outputs": [
         {
           "internalType": "string",
@@ -450,7 +450,7 @@ export default class Web3service extends Service.extend({}) {
     },
     {
       "inputs": [],
-      "name": "getFameCoinBalance",
+      "name": "getFameBalance",
       "outputs": [
         {
           "internalType": "uint16",
@@ -896,16 +896,16 @@ export default class Web3service extends Service.extend({}) {
   /*
 getTeasedMessagesForSpot(uint32 longitude, uint32 latitude)
 */
-  async getTeasedMessagForSpot(lon, lat) {
+  async getCachesForSpot(lon, lat) {
     const teasedMessages = await this._directNetworkContract.methods.getTeasedMessagesForSpot( lon, lat).call({ from: this.connectedAccount });
     return teasedMessages;
   }
 
   /*
-getUnlockedMessage(uint128 messageTokenId)
+getUnlockedCacheEntries(uint128 messageTokenId)
 */
-  async getUnlockedMessage(messageTokenId) {
-    const message = await this._directNetworkContract.methods.getUnlockedMessage(messageTokenId).call({ from: this.connectedAccount });
+  async getUnlockedCacheEntries(messageTokenId) {
+    const message = await this._directNetworkContract.methods.getUnlockedCacheEntries(messageTokenId).call({ from: this.connectedAccount });
     return message;
   }
   /*
@@ -923,10 +923,10 @@ convertFameToMessageCoin(uint32 longitude, uint32 latitude)
     return success;
   }
   /*
-getFameCoinBalance()
+getFameBalance()
 */
-  async getFameCoinBalance() {
-    const balance = await this._directNetworkContract.methods.getFameCoinBalance().call({ from: this.connectedAccount });   
+  async getFameBalance() {
+    const balance = await this._directNetworkContract.methods.getFameBalance().call({ from: this.connectedAccount });   
     return balance;
   }
 

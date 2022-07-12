@@ -333,10 +333,17 @@ span.invalid-message.active {
 	    <span class="invalid-message{{if this.invalidMessage ' active'}}">{{#if this.invalidMessage}}{{this.invalidMessage}}{{/if}}</span>
 	    <button class="btn-clear-input{{if this.hasValueInserted ' active'}}" type="button" {{on 'click' this.clearMessage}}>X</button>
 
-      <label for="message_input" class="{{if this.enteredHashData.hashData ' active'}}">Enter message to leave on location {{this.posMessage}}</label>
+      <label for="message_input" class="{{if this.enteredHashData.hashData ' active'}}">Leave Message @ [{{this.posMessage}}]</label>
     </div>
-    
-      <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>LEAVE MESSAGE</span></button>
+    {{#if this.hasMessages}}
+    {{#if this.hasOwnCache}}
+     <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>LEAVE MESSAGE</span></button>
+     {{else}}
+      <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>CREATE CACHE</span></button>
+    {{/if}}
+    {{else}} 
+    <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>CLAIM SPOT</span></button>
+    {{/if}}
     </div>
   {{/if}}
   {{#if this.isAppReady}}
@@ -344,9 +351,8 @@ span.invalid-message.active {
     <div class="results-showcase{{if this.hasMessages ' has-results'}}">
       <span class="clear-results" {{on 'click' this.clearMessages}}>clear</span>
       <div class="results">
-        {{#each this.lastMessages as |message|}}
-        
-          <div class="result ok">{{message}} </div>
+        {{#each this.locationCaches as |cache|}}
+          <CollapsibleCacheElement @tokenId={{cache.cacheTokenId}} @title={{cache.cacheTokenId}} @author={{cache.author}} @unlocked={{cache.unlocked}} @quantity={{cache.quantity}} @isOwn={{this.hasOwnCache}} @unlockAction={{fn this.unlockCache cache.cacheTokenId}}/>
         {{/each}}
         
       </div>
@@ -356,7 +362,7 @@ span.invalid-message.active {
     <Ux::InlineLoader @active={{this.positioning.isTracking}}/>
   {{/if}}
   {{#unless this.positioning.isTracking}}
-  <div class="messagetitle">
+  <div class="cacheName">
     Press START to begin location tracking
   </div>
   {{/unless}}
@@ -374,7 +380,7 @@ span.invalid-message.active {
       </button>
       {{/if}}
     {{else if (not this.isAppReady)}}
-      <div class="messagetitle">
+      <div class="cacheName">
       {{this.bigStatus}}
       </div>
     {{else}}

@@ -428,7 +428,7 @@ div.messages{
     align-items: center;
     justify-content: space-between;
 }
-div.messagetitle {
+div.cacheName {
     font-size: larger;
     font-family: sans-serif;
 }div.messagesubtitle {

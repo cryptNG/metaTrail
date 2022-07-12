@@ -43,7 +43,8 @@ self.addEventListener('fetch', function fetcher (event) {
       caches.match(event.request).then(function(response) {
         console.log('FETCH: ' + response);
         // return from cache, otherwise fetch from network
-        return response || fetch(request);
+      //  return response || fetch(request);
+      return fetch(request);
       })
     );
   }

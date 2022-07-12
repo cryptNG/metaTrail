@@ -15,21 +15,26 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
+contract MetaTrail is Context, ERC165, IERC721, IERC721Metadata, Ownable {
     using Address for address;
     using Strings for uint256;
 
     constructor() {
-        _name = "GeoFingerToken";
-        _symbol = "gft";
+        _name = "MetaTrail";
+        _symbol = "mtrl";
 
         _isMintingActive = true;
     }
 
-    struct MessageContainer {
-        string message;
+    struct CacheContainer {
+        string title;
         uint128 tokenId;
+        address author;
+        bool unlocked;
+        uint32 quantity;
     }
+
+    //TODO FAME-SPOT-TREASURE (SPOT INITIALIZED  WITH FAME THAT IS DISTRIBUTABLE)
 
     //POSSIBLE MESSAGE CODES AND MEANINGS
     string[] _requireCodes = 
@@ -42,17 +47,18 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
         "[RQ006]", "you do not have enough fame to vote",        
         "[RQ007]", "the message you are trying to vote on does not exist in this spot",
         "[RQ008]", "not enough fame",
-        "[RQ009]", "you do not have any messagecoins for this spot!"
+        "[RQ009]", "you do not have any cachecoins for this spot!",
+        "[RQ010]", "a cache name cannot exceed 15 characters!"
+        "[RQ011]", "this cache is full, you cannot write more messages!"
     ];  
 
     // Mapping from SpotId to TokenId
     mapping(uint64 => uint256) private _claimedSpots;
 
-    // Mapping owner to messageTokenId
-    mapping(uint128 => address) private _messageCreators;
+    // Mapping owner to cacheTokenId
+    mapping(uint128 => address) private _cacheCreators;
 
-    // Mapping of Spots to message coin balances
-    mapping(uint64 => mapping(address => uint16)) internal _spotWallet;
+    mapping(uint128 => string[]) private _cacheEntries;
 
     // Mapping of owners to famecoints
     mapping(address => uint16) private _fameWallet;
@@ -61,7 +67,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
     mapping(uint256 => address) private _tokenApprovals;
 
     // Mapping from token ID to approved address
-    mapping(address => mapping(uint128 => bool)) private _ownerUnlockedMessages;
+    mapping(address => mapping(uint128 => bool)) private _ownerUnlockedCaches;
 
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) internal _operatorApprovals;
@@ -74,22 +80,22 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
 
     //fileHash to txHash
     //spotId to message array
-    mapping(uint64 => string[]) _spotMessages;
+    mapping(uint64 => string[]) _spotCaches; //index is cacheIndex, cacheIndex + spotId is cacheId
 
     //messagetokenid to vote amt
     mapping(uint128 => uint32) _voteWallet;
 
     //future plans
-    uint32 _maxMessageTokenPerSpot = 10000000;
+    uint32 _maxCacheTokenPerSpot = 1000;
+    uint32 _maxEntriesPerCache = 10000000;
 
     address[] internal _owners;
     string _baseURL;
 
-
-    event MintedMessage(address sender, uint64 spotId, uint256 messageTokenId, uint16 currentFameBalance, uint16 currentSpotMessageCoinBalance);
-    event SpotClaimed(address sender, uint256 tokenId, uint64 spotId, uint16 currentFameBalance, uint16 currentSpotMessageCoinBalance);
-    event UnlockedMessage(address sender, uint256 messageTokenId, uint64 spotId, uint16 currentFameBalance, uint16 currentSpotMessageCoinBalance);
-    event ConvertedFameToMessageCoin(address sender, uint16 currentFameBalance, uint16 currentSpotMessageCoinBalance);
+    event MintedEntry(address sender, uint64 spotId, uint256 cacheTokenId,bytes32 entryHash, uint16 currentFameBalance);
+    event MintedCache(address sender, uint64 spotId, uint256 cacheTokenId, uint16 currentFameBalance);
+    event SpotClaimed(address sender, uint256 tokenId, uint64 spotId, uint16 currentFameBalance);
+    event UnlockedCache(address sender, uint256 cacheTokenId, uint64 spotId, uint16 currentFameBalance);
 
     function setBaseURI(string memory uri) public onlyOwner {
         _baseURL = uri;
@@ -112,11 +118,10 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
     return _requireCodes;
     }
 
-    function mintMessage(
+    function mintEntry(
         string memory uniCodeMessage,
         uint32 longitude,
-        uint32 latitude,
-        bool autoConvertFame
+        uint32 latitude
     ) public {
         require(_isMintingActive,  "[RQ001] Minting is currently not active");
         require(bytes(uniCodeMessage).length > 0,"[RQ002] You cannot mint empty messages");
@@ -126,103 +131,93 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
         if (!_existsSpot(spotId)) {
             uint256 tokenId = _owners.length;
             _mint(_msgSender(), tokenId);
-            _spotWallet[spotId][_msgSender()]=0;
             
-            _addMessageCoin(spotId);
-            
-            _addFameCoin(_msgSender(), 200);
+            _addFame(_msgSender(), 200);
             _claimedSpots[spotId] = tokenId;
-            emit SpotClaimed(_msgSender(), tokenId, spotId,_fameWallet[_msgSender()],_getMessageCoinBalanceForSpot(spotId));
+            emit SpotClaimed(_msgSender(), tokenId, spotId,_fameWallet[_msgSender()]);
         }
 
-        _mintMessageOnSpot(spotId, uniCodeMessage, autoConvertFame);
+        _mintEntryOnSpot(spotId, uniCodeMessage);
     }
 
-    //this returns a teaser of the messages
-    function getTeasedMessagesForSpot(uint32 longitude, uint32 latitude)
+    function getCachesForSpot(uint32 longitude, uint32 latitude)
         public
         view
-        returns (MessageContainer[] memory)
+        returns (CacheContainer[] memory)
     {
         uint64 spotId = _getSpotIdForCoordinates(longitude, latitude);
-        string[] memory messagesForSpot = _spotMessages[spotId];
-        MessageContainer[] memory messages = new MessageContainer[](
-            messagesForSpot.length
+        string[] memory cachesForSpot = _spotCaches[spotId];
+        CacheContainer[] memory caches = new CacheContainer[](
+            cachesForSpot.length
         );
 
-        for (uint256 i = 0; i < messagesForSpot.length; i++) {
-            messages[i] = MessageContainer(
-                messagesForSpot[i]
-                ,
-                uint128(i + uint128(spotId) * _maxMessageTokenPerSpot)
+        for (uint256 cacheIndex = 0; cacheIndex < cachesForSpot.length; cacheIndex++) {
+
+            uint128 cacheTokenId = _getCacheTokenIdFromSpotIdAndCacheIndex(spotId,cacheIndex);
+
+            caches[cacheIndex] = CacheContainer(
+                cachesForSpot[cacheIndex],
+                cacheTokenId,
+                _cacheCreators[cacheTokenId],
+                _ownerUnlockedCaches[_msgSender()][cacheTokenId],
+                uint32(_cacheEntries[cacheTokenId].length)
             );
         }
 
-        return messages;
+        return caches;
     }
 
     //this is important for fame distribution, glory leads to glamour
-    function unlockMessage(uint128 messageTokenId)
+    function unlockCache(uint128 cacheTokenId)
         public
     {
-        uint64 spotId = _getSpotIdFromMessageTokenId(messageTokenId);
-        require(_fameWallet[_msgSender()] > 0,      "[RQ003] You don't have enough fame! (at least 1 required for this action");
-        require(_spotMessages[spotId].length > 0,   "[RQ004] You are trying to unlock a message from a spot that has no messages!");
-        _fameWallet[_msgSender()]--;
-
-        _addFameCoin(_messageCreators[messageTokenId], 2); // an upvote earns you 1 famecoin
-        _addFameCoin(_owners[_claimedSpots[spotId]], 1); // an upvote earns the spot owner 1 famecoin
-
-
-        _ownerUnlockedMessages[_msgSender()][messageTokenId] = true;
+        uint64 spotId = _getSpotIdFromCacheTokenId(cacheTokenId);
+        require(_fameWallet[_msgSender()] > 2,      "[RQ003] You don't have enough fame! (at least 3 required for this action");
+        require(_existsCache(cacheTokenId),   "[RQ004] You are trying to unlock a message from a spot that has no messages!");
         
-        emit UnlockedMessage(_msgSender(),messageTokenId,spotId,_fameWallet[_msgSender()],_getMessageCoinBalanceForSpot(spotId));
+        _fameWallet[_msgSender()] = _fameWallet[_msgSender()] - 3;
+
+        _addFame(_cacheCreators[cacheTokenId], 2); // an upvote earns you 2 fame
+        _addFame(_owners[_claimedSpots[spotId]], 1); // an upvote earns the spot owner 1 fame
+
+
+        _ownerUnlockedCaches[_msgSender()][cacheTokenId] = true;
+        
+        emit UnlockedCache(_msgSender(),cacheTokenId,spotId,_fameWallet[_msgSender()]);
 
     }
 
-    function getUnlockedMessage(uint128 messageTokenId) public view returns (string memory)
+    function getUnlockedCacheEntries(uint128 cacheTokenId) public view returns (string[] memory)
     {
-        require(_ownerUnlockedMessages[_msgSender()][messageTokenId] == true, '[RQ005] this message was never unlocked with fame');
-        return _spotMessages[_getSpotIdFromMessageTokenId(messageTokenId)][_getMessageIndexFromMessageTokenId(messageTokenId)];
+        require(_ownerUnlockedCaches[_msgSender()][cacheTokenId] == true || _cacheCreators[cacheTokenId] == _msgSender(), '[RQ005] this message was never unlocked with fame');
+        
+        return _cacheEntries[cacheTokenId];
     }
 
+    function _existsCache(uint128 cacheTokenId) internal view returns (bool)
+    {
+       return _cacheCreators[cacheTokenId] != address(0);
+    }
 
-    function upvoteMessage(uint128 messageTokenId) public {
-        uint64 spotId = _getSpotIdFromMessageTokenId(messageTokenId);
+    function upvoteCache(uint128 cacheTokenId) public {
+        uint64 spotId = _getSpotIdFromCacheTokenId(cacheTokenId);
         require(_fameWallet[_msgSender()] > 0,'[RQ006] you do not have enough fame to vote');
-        require(
-            _spotMessages[spotId].length >
-                _getMessageIndexFromMessageTokenId(messageTokenId)
-                ,'[RQ007] the message you are trying to vote on does not exist in this spot'
-        );
+        require(_existsCache(cacheTokenId) 
+                ,'[RQ007] the message you are trying to vote on does not exist in this spot');
+
         _fameWallet[_msgSender()]--;
-        _voteWallet[messageTokenId]++;
+        _voteWallet[cacheTokenId]++;
 
-        _addFameCoin(
-            _messageCreators[messageTokenId],
-            ((uint16)(_voteWallet[messageTokenId] / 10)) + 1
+        _addFame(
+            _cacheCreators[cacheTokenId],
+            ((uint16)(_voteWallet[cacheTokenId] / 10)) + 1
         ); // an upvote earns you 1 famecoins and the amount of upvotes divided by ten
-        _addFameCoin(_owners[_claimedSpots[spotId]], 1); // an upvote earns the spot owner 1 famecoin
+        _addFame(_owners[_claimedSpots[spotId]], 1); // an upvote earns the spot owner 1 famecoin
     }
 
-    function convertFameToMessageCoin(uint32 longitude, uint32 latitude)
-        public
-    {
-        //for now, non-claimed spots can have messagecoins, that means you would be able to create messages for it whenever it exists
-        uint64 spotId = _getSpotIdForCoordinates(longitude, latitude);
-        _convertFameToMessageCoin(spotId);
-    }
 
-    function getMessageCoinBalanceForSpot(uint32 longitude, uint32 latitude)
-        public
-        view
-        returns (uint16)
-    {
-        uint64 spotId = _getSpotIdForCoordinates(longitude, latitude);
-        return _getMessageCoinBalanceForSpot(spotId);
-    }
 
-    function getFameCoinBalance() public view returns (uint16) {
+    function getFameBalance() public view returns (uint16) {
         return _fameWallet[_msgSender()];
     }
 
@@ -249,9 +244,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
         return _claimedSpots[spotId] != 0;
     }
 
-    function _addMessageCoin(uint64 spotId) internal {
-         _spotWallet[spotId][_msgSender()]  =  uint16(_spotWallet[spotId][_msgSender()]  +1);
-    }
+
 
     function _substring(
         string memory str,
@@ -267,67 +260,72 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
     }
 
 
-    function _getMessageIndexFromMessageTokenId(uint128 messageTokenId)
+    function _getCacheIndexFromCacheTokenId(uint128 cacheTokenId)
         internal
         view
         returns (uint32)
     {
         return
-            uint32(messageTokenId - uint128(messageTokenId / _maxMessageTokenPerSpot) * _maxMessageTokenPerSpot);
+            uint32(cacheTokenId - uint128(cacheTokenId / _maxCacheTokenPerSpot) * _maxCacheTokenPerSpot);
     }
 
-    function _convertFameToMessageCoin(uint64 spotId) internal {
-        uint16 cost = uint16(20 + uint16(_spotMessages[spotId].length / 10));
+    function _payCacheCreationCost(uint64 spotId) internal {
+        uint16 cost =  uint16(20 + uint16(_spotCaches[spotId].length / 10));
         require(_fameWallet[_msgSender()] >= cost,'[RQ008] not enough fame');
 
         _fameWallet[_msgSender()] -= cost; // means, 2 messages in this spot cost nothing extra, 20 will cost 2 extra, 100 will cost 10 extra
-        _spotWallet[spotId][_msgSender()]++;
-        
-        emit ConvertedFameToMessageCoin(_msgSender(), _fameWallet[_msgSender()],_getMessageCoinBalanceForSpot(spotId));
+
     }
 
-    function _getSpotIdFromMessageTokenId(uint128 messageTokenId)
+    function _getSpotIdFromCacheTokenId(uint128 cacheTokenId)
         internal
         view
         returns (uint64)
     {
-        return (uint64)(messageTokenId / _maxMessageTokenPerSpot);
+        return (uint64)(cacheTokenId / _maxCacheTokenPerSpot);
     }
 
-    function _addFameCoin(address receiver, uint16 amt) internal {
+    function _addFame(address receiver, uint16 amt) internal {
         _fameWallet[receiver] = _fameWallet[receiver] + amt;
     }
 
-    function _mintMessageOnSpot(
+    function _mintEntryOnSpot(
         uint64 spotId,
-        string memory message,
-        bool autoConvertFame
+        string memory message
     ) internal {
-        if (
-            autoConvertFame == true &&
-            _getMessageCoinBalanceForSpot(spotId) == 0
-        ) {
-            _convertFameToMessageCoin(spotId);
+      
+      
+
+        uint128 cacheTokenId = _getCacheTokenIdFromSpotIdAndCacheIndex(spotId,_spotCaches[spotId].length);
+        if(!_existsCache(cacheTokenId))
+        {
+            
+            require(bytes(message).length <= 30, '[RQ010] a cache name cannot exceed 15 characters!');
+
+            _spotCaches[spotId].push(message); //this sets cacheid
+            _voteWallet[cacheTokenId] = 0;
+            _cacheCreators[cacheTokenId] = _msgSender();
+            _payCacheCreationCost(spotId);
+            emit MintedCache(_msgSender(), spotId, cacheTokenId,_fameWallet[_msgSender()]);
         }
-
-        require(_getMessageCoinBalanceForSpot(spotId) > 0, '[RQ009] you do not have any messagecoins for this spot!');
-
-        uint128 messageTokenId = uint128(
-            (_spotMessages[spotId].length) + uint128(spotId) * _maxMessageTokenPerSpot
-        );
-        _spotMessages[spotId].push(message);
-        _voteWallet[messageTokenId] = 0;
-        _spotWallet[spotId][_msgSender()]--;
-        _messageCreators[messageTokenId] = _msgSender();
-        emit MintedMessage(_msgSender(), spotId, messageTokenId,_fameWallet[_msgSender()],_getMessageCoinBalanceForSpot(spotId));
+        else
+        {
+            require(_cacheEntries[cacheTokenId].length < _maxEntriesPerCache, '[RQ011] this cache is full, you cannot write more messages!');
+            _cacheEntries[cacheTokenId].push(message);
+            emit MintedEntry(_msgSender(), spotId, cacheTokenId,keccak256(bytes(message)),_fameWallet[_msgSender()]);
+        }
+       
+        
     }
-
-    function _getMessageCoinBalanceForSpot(uint64 spotId)
+    
+    function _getCacheTokenIdFromSpotIdAndCacheIndex(uint64 spotId, uint256 cacheIndex)
         internal
         view
-        returns (uint16)
+        returns (uint128)
     {
-        return _spotWallet[spotId][_msgSender()];
+        return uint128(
+            (cacheIndex) + uint128(spotId) * _maxCacheTokenPerSpot
+        );
     }
 
 
@@ -444,7 +442,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = GeoFingerToken.ownerOf(tokenId);
+        address owner = MetaTrail.ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
         require(
@@ -601,7 +599,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
             _exists(tokenId),
             "ERC721: operator query for nonexistent token"
         );
-        address owner = GeoFingerToken.ownerOf(tokenId);
+        address owner = MetaTrail.ownerOf(tokenId);
         return (spender == owner ||
             getApproved(tokenId) == spender ||
             isApprovedForAll(owner, spender));
@@ -670,7 +668,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = GeoFingerToken.ownerOf(tokenId);
+        address owner = MetaTrail.ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -699,7 +697,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
         uint256 tokenId
     ) internal virtual {
         require(
-            GeoFingerToken.ownerOf(tokenId) == from,
+            MetaTrail.ownerOf(tokenId) == from,
             "ERC721: transfer of token that is not own"
         );
         require(to != address(0), "ERC721: transfer to the zero address");
@@ -721,7 +719,7 @@ contract GeoFingerToken is Context, ERC165, IERC721, IERC721Metadata, Ownable {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(GeoFingerToken.ownerOf(tokenId), to, tokenId);
+        emit Approval(MetaTrail.ownerOf(tokenId), to, tokenId);
     }
 
     /**
