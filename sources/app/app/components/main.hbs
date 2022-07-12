@@ -405,6 +405,28 @@ span.invalid-message.active {
   3. Enable LOCATION <br>
   4. Close this Modal, we will automatically try again.
   </div>
+   <button class="mobile" type="button" {{on 'click' this.showHowToRequestGeoLocationPermission}}>
+        PLEASE ENABLE GEOLOCATION
+      </button>
+  </ModalDialog>
+{{/if}}
+
+{{#if this.isShowingUnlockCacheForFameModal}}
+  <ModalDialog @onClose={{action "toggleUnlockCacheModal"}} @targetAttachment="center" @translucentOverlay={{true}}>
+    <div class="modal">
+  This cache is locked! To view the messages inside, you have to unlock it, this will cost you 3 Fame.
+  <br/>
+  Do you want to unlock this cache?
+  <br/>
+  </div>
+  <div>
+     <button class="yesno-left" type="button" {{on 'click' this.userTriggerUnlockCache}}>
+        YES
+      </button>
+   <button class="yesno-right" type="button" {{on 'click' this.toggleUnlockCacheModal}}>
+        YES
+      </button>
+  </div>
   </ModalDialog>
 {{/if}}
 

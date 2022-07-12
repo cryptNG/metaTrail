@@ -294,7 +294,7 @@ contract MetaTrail is Context, ERC165, IERC721, IERC721Metadata, Ownable {
         for(uint i = 0; i < _spotCaches[spotId].length; i++)
         {
         uint128 cacheTokenId = _getCacheTokenIdFromSpotIdAndCacheIndex(spotId,i);
-        if(_existsCache(cacheTokenId)) return cacheTokenId;
+        if(_cacheCreators[cacheTokenId] == _msgSender()) return cacheTokenId;
         }
         return 0;
     }

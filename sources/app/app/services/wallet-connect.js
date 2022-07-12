@@ -774,7 +774,7 @@ export default class WalletConnectService extends Service {
 
     _web3addr = 'https://testnet.cryptng.com:8545';
     //_web3addr = 'http://127.0.0.1:9545';
-    _metatrail_contract_address = '0x6E252b939974FA1360b293F8732316aEd085dd84';
+    _metatrail_contract_address = '0xAE1Db9A140BaA98185913Fc76BCEA0A02527a39A';
     _provider = new providers.JsonRpcProvider(this._web3addr)
     _directNetworkContract = new Contract(this._metatrail_contract_address,this._abi,this._provider);
   
@@ -902,7 +902,9 @@ export default class WalletConnectService extends Service {
           console.log(result);
        
       }
-
+      async unlockCache(cacheTokenId) {
+        const data = await this._directNetworkContract.unlockCache(cacheTokenId)
+      }
   
   /*
 getTeasedMessagesForSpot(uint32 longitude, uint32 latitude)

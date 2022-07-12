@@ -65,10 +65,26 @@ export default class MainComponent extends Component {
     this.enteredMessage = '';
   }
 
-
-  @action unlockCache(cacheTokenId)
+@tracked isShowingUnlockCacheForFameModal = false;
+@tracked cacheToUnlock = null;
+  @action toggleUnlockCacheModal()
   {
+    this.isShowingUnlockCacheForFameModal = !this.isShowingUnlockCacheForFameModal;
+  }
 
+@action async userTriggerUnlockCache()
+{
+  await this.walletConnect.unlockCache(this.cacheToUnlock);
+  
+  this.cacheToUnlock = null;
+
+  await retrieveCaches();
+}
+
+  @action async unlockCache(cacheTokenId)
+  {
+    this.cacheToUnlock = cacheTokenId;
+    toggleUnlockCacheModal();
   }
 
   @action async retrieveCaches() {
@@ -124,6 +140,7 @@ export default class MainComponent extends Component {
       const lat =pos.lat;
       await this.walletConnect.mintMessage(this.enteredMessage,lon, lat, true);
      
+      await this.retrieveCaches();
 
     } catch (reason) {
       this.setAppErrorMessage(this.getSolutionForErrorCode(reason.message.match("\\[.*?]")[0]));
