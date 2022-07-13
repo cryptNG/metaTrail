@@ -784,7 +784,7 @@ export default class WalletConnectService extends Service {
     bridge = "https://bridge.walletconnect.org";
     hasWalletEventsSet = false;
     
-    @tracked connectedAccount = null;
+    @tracked connectedAccount = '';
     @service router;
     @tracked _isMintingActive = false;
 
@@ -808,11 +808,15 @@ export default class WalletConnectService extends Service {
         return this.connector.connected;
     }
 
+    async connect()
+    {
+      await this.connector.createSession();
+    }
+
     async disconnect() 
     {
         await this.connector.killSession();
         
-        await this.connector.createSession();
     }
 
     async registerHandlers(){
@@ -854,7 +858,8 @@ export default class WalletConnectService extends Service {
  
      this.connector.on("disconnect", (error, payload) => {
        console.log(`connector.on("disconnect")`);
-       this.connector.createSession();
+       //this.connector.createSession();
+       location.reload();
        if (error) {
          throw error;
        }
@@ -866,10 +871,10 @@ export default class WalletConnectService extends Service {
        this.connectedAccount = accounts[0];
        if(chainId != "1337") window.alert("incorrect chain");
      }
-     if (!this.connector.connected) {
-        // create new session
-        this.connector.createSession();
-      }
+    //  if (!this.connector.connected) {
+    //     // create new session
+    //     this.connector.createSession();
+    //   }
 
       }
 

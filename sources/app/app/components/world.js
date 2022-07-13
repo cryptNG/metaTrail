@@ -365,7 +365,9 @@ export default class World extends Component {
             .attr('r', 7);
             
             markerGroup.each(function () {
-              this.parentNode.appendChild(this);
+              setTimeout(() => this.parentNode.appendChild(this),4000);
+              
+
             });
       }
     }

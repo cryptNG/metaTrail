@@ -263,8 +263,14 @@ cursor: pointer;
 	height: 3em;
 }
 
+
+.together button.btn.mint[disabled="true"]{
+	background-color: rgba(128, 128, 128, 0.244);
+}
+
+
 .together button.btn:disabled{
-	background-color: gray;
+	background-color: rgba(128, 128, 128, 0.677);
 }
 
 .together button.btn:hover{
@@ -330,25 +336,43 @@ span.invalid-message.active {
   <World/>
   {{#if this.isAppReady}}
     <div class="together">
+    
     <div class="inputbox">
 		  <input type="file" id="drop_box_input" name="drop_box_input">
-	    <input id="message_input" name="message_input" class="custom-input{{if this.hasValueInserted ' active'}}" type="text" placeholder="" value={{this.enteredMessage}} {{on 'keyup' this.updateEnteredMessage}} >
+	    <input id="message_input" name="message_input" disabled="{{unless  this.walletConnect.isConnected 'true'}}" class="custom-input{{if this.hasValueInserted ' active'}}" type="text" placeholder="" value={{this.enteredMessage}} {{on 'keyup' this.updateEnteredMessage}} >
 	    <span class="invalid-message{{if this.invalidMessage ' active'}}">{{#if this.invalidMessage}}{{this.invalidMessage}}{{/if}}</span>
 	    <button class="btn-clear-input{{if this.hasValueInserted ' active'}}" type="button" {{on 'click' this.clearMessage}}>X</button>
 
       <label for="message_input" class="{{if this.enteredHashData.hashData ' active'}}">Leave Message @ [{{this.posMessage}}]</label>
     </div>
-    {{#if this.hasMessages}}
-    {{#if this.hasOwnCache}}
-     <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>LEAVE MESSAGE</span></button>
-     {{else}}
-      <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>CREATE CACHE</span></button>
-    {{/if}}
-    {{else}} 
-    <button class="btn mint" disabled={{if this.hasValidMessage '' 'disabled'}} type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>CLAIM SPOT</span></button>
+    {{#if this.hasValidMessage}}
+      {{#if this.hasMessages}}
+          {{#if this.hasOwnCache}}
+            <button class="btn mint" type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>LEAVE MESSAGE</span></button>
+          {{else}}
+            <button class="btn mint" type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>CREATE CACHE</span></button>
+          {{/if}}
+      {{else}} 
+        <button class="btn mint" type="button" {{action this.mintMessage}}><span><Ux::InlineLoader @active={{this.isMinting}}/>CLAIM SPOT</span></button>
+      {{/if}}
+    {{else}}
+        {{#if this.hasMessages}}
+          {{#if this.hasOwnCache}}
+          <button class="btn mint" disabled='true' type="button"><span><Ux::InlineLoader @active={{this.isMinting}}/>LEAVE MESSAGE</span></button>
+          {{else}}
+          <button class="btn mint" disabled='true' type="button"><span><Ux::InlineLoader @active={{this.isMinting}}/>CREATE CACHE</span></button>
+          {{/if}}
+        {{else}} 
+          <button class="btn mint" disabled='true' type="button"><span><Ux::InlineLoader @active={{this.isMinting}}/>CLAIM SPOT</span></button>
+      {{/if}}
     {{/if}}
     </div>
+
+
+
   {{/if}}
+
+  
   {{#if this.isAppReady}}
 
     <div class="results-showcase{{if this.hasMessages ' has-results'}}">

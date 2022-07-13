@@ -604,6 +604,3 @@ div.connectinfo div.account
 	transition: 0.05s ease-out;
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.44), 0 1px 1px 0 rgba(0, 0, 0, 0.68);
 }
-
-div.walletconnect-modal__header
-{display:none}

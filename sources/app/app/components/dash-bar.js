@@ -15,12 +15,14 @@ export default class Dashboard extends Component {
     
  
 
+    
+
   @action async connect()
   {
     try
     {
 
-      await this.web3service.connect();
+      await this.walletConnect.connect();
       
     
 
@@ -30,7 +32,7 @@ export default class Dashboard extends Component {
       window.alert(err.message);
     }
   }
-
+  
 
   @action async disconnect()
   {

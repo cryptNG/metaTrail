@@ -24,7 +24,7 @@
         <b>&lt;</b> {{nicer-hash this.walletConnect.connectedAccount}}<b>&gt;</b>
       </div>
     {{else}}
-       <div class="account" id="glow-red"><b>&lt;</b> not connected <b>&gt;</b></div>
+       <div class="account" id="glow-red" {{on 'click' this.connect}}><b>&lt;</b> CONNECT <b>&gt;</b></div>
     {{/if}}
     
   </div>

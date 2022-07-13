@@ -78,7 +78,7 @@ export default class MainComponent extends Component {
     return this.loadedCaches;
   }
   get isAppReady() {
-   return this.positioning.isTracking && this.walletConnect.isConnected && this.isValidPosition;
+   return this.positioning.isTracking && this.isValidPosition;
   }
 
   get isValidPosition(){
