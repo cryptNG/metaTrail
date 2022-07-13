@@ -71,9 +71,11 @@ input[type="text"].custom-input ~ label {
     top: 10px;
 		opacity: 1;
 		z-index: 1020;
-		left:calc(50% - 230px);
 		transition: all 0.5s ease-in-out;
     cursor: text;
+        text-align: center;
+    display: block;
+    width: 100%;
 
 }
 @media only screen and (max-width: 600px){
@@ -88,6 +90,7 @@ input[type="text"].custom-input.active ~ label  {
 		left:10px;
     color: #c9ffff;
 		text-shadow: 1px 1px 3px black;
+    
 }
 
 .inputbox button.action-btn{
@@ -374,9 +377,9 @@ span.invalid-message.active {
         PLEASE ENABLE GEOLOCATION
       </button>
       {{else}}
-      <button class="mobile" type="button" {{on 'click' this.setUserLocation}}>
+      {{!-- <button class="mobile" type="button" {{on 'click' this.setUserLocation}}>
         START
-      </button>
+      </button> --}}
       {{/if}}
     {{else if (not this.isAppReady)}}
       <div class="cacheName">
@@ -424,7 +427,7 @@ span.invalid-message.active {
         YES
       </button>
    <button class="yesno-right" type="button" {{on 'click' this.toggleUnlockCacheModal}}>
-        YES
+        no
       </button>
   </div>
   </ModalDialog>

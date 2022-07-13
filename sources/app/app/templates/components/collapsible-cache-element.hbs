@@ -1,4 +1,5 @@
-  <div class="result ok">{{@title}} by {{nicer-hash @author}} <span class="badge" {{on 'click' (fn this.unlockOrViewCache)}}>{{@quantity}}</span></div>
+
+  <div class="result ok" {{on 'click' (fn this.toggleCollapseCache)}}>"{{@title}}" <div class="author">by {{nicer-hash @author}}</div> <span class="badge {{if @unlocked 'unlocked' 'locked'}}" {{on 'click' (fn this.unlockOrViewCache)}}>{{@quantity}}</span></div>
   {{#unless this.collapsed}}
 {{#each this.entries as |entry|}}
 <div class="entry">{{entry}}</div>

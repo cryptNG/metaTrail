@@ -11,6 +11,8 @@ export default class Positioning extends Service.extend({
   positions=[];
   @tracked isPerforming=false;
   histTracked=0;
+  timeoutId=null;
+  timeBetweenPositioning=100;
   onChangedMessageCallBack=(msg)=>{console.log(msg)}
   updatePosition ={
     on : (callback)=>{
@@ -26,10 +28,10 @@ export default class Positioning extends Service.extend({
     this.isPerforming=true;
     setTimeout(
       function (that) {
-        if(!this.isRequestPending) that.retrieveLocation();
+        if(!that.isRequestPending) that.retrieveLocation();
         that.performInfinite();
       },
-      4000,
+      this.timeBetweenPositioning,
       this
     );
   }
@@ -41,13 +43,17 @@ export default class Positioning extends Service.extend({
   retrieveLocation = () => {
     
     console.log('retrievelocation, requestpending: ' + this.isRequestPending);
+    if(this.timeoutId !== null) clearTimeout(this.timeoutId);
     this.isRequestPending = true;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         this.consumePosition,
         this.showError,
-        { maximumAge: 2000, timeout: 5000, enableHighAccuracy: true }
+        { maximumAge: Infinity, timeout: 2000, enableHighAccuracy: true }
       );
+      this.timeoutId = setTimeout(() => {
+        this.isRequestPending = false;
+      }, 2000);
     } else {
       this.updatetStatusMessage('geolocation is not supported by this browser.');
     }
@@ -58,6 +64,7 @@ export default class Positioning extends Service.extend({
       this.histTracked++;
       return;
     }
+    this.timeBetweenPositioning=4000;
     this.isRequestPending = false;
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;

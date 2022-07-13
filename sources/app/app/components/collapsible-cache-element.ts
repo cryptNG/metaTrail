@@ -31,7 +31,7 @@ export default class CollapsibleCacheElement extends Component<CollapsibleCacheE
         this.collapsed = !this.collapsed;
     }
 
-    async reloadCacheEntries()
+    @action async reloadCacheEntries()
     {
         this.entries = null;
         await this.loadUnlockedCacheEntries();
@@ -47,6 +47,16 @@ export default class CollapsibleCacheElement extends Component<CollapsibleCacheE
         else
         {
             this.args.unlockAction();
+        }
+    }
+
+    
+    @action toggleCollapseCache()
+    {
+        if(this.args.unlocked) 
+        {
+            this.loadUnlockedCacheEntries();
+            this.toggleCollapsible();
         }
     }
 

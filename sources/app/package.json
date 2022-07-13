@@ -111,6 +111,7 @@
     "@walletconnect/types": "^1.7.8",
     "@walletconnect/utils": "^1.7.8",
     "buffer": "^6.0.3",
+    "ember-concurrency": "^2.2.1",
     "ethers": "^5.6.9",
     "web3": "^1.7.4"
   }
