@@ -139,15 +139,18 @@ export default class MainComponent extends Component {
     this.toggleUnlockCacheModal();
   }
 
-  
+  statusMessageLoading = ''
 
   @action async retrieveCaches() {
     this.isRequestPending = true;
     this.timeTillReloadCaches = this.timeTillReloadCaches+100;
     if(!this.positioning.isTracking) return;
     try {
-      
-      this.setStatusMessage('asking blockchain for messages');
+
+      if(this.statusMessageLoading.length < 4) this.statusMessageLoading += '.';
+      else this.statusMessageLoading = '';
+
+      this.setStatusMessage('asking blockchain for caches' + this.statusMessageLoading);
       const pos = this.positioning.arithmeticLocation();
       const _tmessages = await this.walletConnect.getCachesForSpot(pos.lon,pos.lat);
       const caches = _tmessages.map((tm)=>{
@@ -161,6 +164,8 @@ export default class MainComponent extends Component {
           })
         }
       );
+
+      
       
       caches.forEach(c => {
         const lc = this.loadedCaches.find((lc)=>lc.tokenId+''===c.tokenId+'')||null;
@@ -204,7 +209,7 @@ export default class MainComponent extends Component {
   @action async mintMessage() {
     try {
       this.isMinting = true;
-      this.setStatusMessage('sending messsage');
+      this.setStatusMessage('sending data to blockchain');
       const pos =this.positioning.arithmeticLocation();
       const lon =pos.lon;
       const lat =pos.lat;

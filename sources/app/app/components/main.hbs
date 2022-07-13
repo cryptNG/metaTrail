@@ -339,7 +339,7 @@ span.invalid-message.active {
     
     <div class="inputbox">
 		  <input type="file" id="drop_box_input" name="drop_box_input">
-	    <input id="message_input" name="message_input" disabled="{{unless  this.walletConnect.isConnected 'true'}}" class="custom-input{{if this.hasValueInserted ' active'}}" type="text" placeholder="" value={{this.enteredMessage}} {{on 'keyup' this.updateEnteredMessage}} >
+	    <input id="message_input" name="message_input" disabled="{{unless this.walletConnect.isConnected 'true'}}" class="custom-input{{if this.hasValueInserted ' active'}}" type="text" placeholder="" value={{this.enteredMessage}} {{on 'keyup' this.updateEnteredMessage}} >
 	    <span class="invalid-message{{if this.invalidMessage ' active'}}">{{#if this.invalidMessage}}{{this.invalidMessage}}{{/if}}</span>
 	    <button class="btn-clear-input{{if this.hasValueInserted ' active'}}" type="button" {{on 'click' this.clearMessage}}>X</button>
 
@@ -410,7 +410,11 @@ span.invalid-message.active {
       {{this.bigStatus}}
       </div>
     {{else}}
-    
+    {{#unless this.walletConnect.isConnected}}
+      <div class="cacheName">
+      To participate, press "CONNECT" to connect to your Crypto-Wallet
+      </div>
+    {{/unless}}    
     {{/if}}
   </div>
 </div>
