@@ -2,13 +2,35 @@ import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
+import {timeout} from 'ember-concurrency';
+import { A } from '@ember/array';
+
+class CacheElement{
+
+constructor(hash = {})
+{
+  this.title = hash.title===undefined ? '': hash.title;
+  this.author = hash.author===undefined ? '': hash.author;
+  this.unlocked = hash.unlocked===undefined ? false: hash.unlocked;
+  this.quantity = hash.quantity===undefined ? 0: hash.quantity;
+  this.tokenId = hash.tokenId===undefined ? '' : hash.tokenId;
+  this.isOwn = hash.isOwn===undefined ? false: hash.isOwn;
+}
+
+@tracked title;
+@tracked author;
+@tracked unlocked;
+@tracked quantity;
+@tracked tokenId;
+@tracked isOwn;
+}
 
 export default class MainComponent extends Component {
   @tracked locationDisplay = null;
   @tracked displayGeoLocationRequestButton = false; //some browsers support requesting location permissions explicitly.
   @tracked lat = -1;
   @tracked lon = -1;
-  @tracked locationCaches = [];
+  @tracked loadedCaches = A();
   @tracked enteredMessage =''
   @tracked invalidMessage =""
   @tracked isMinting=false;
@@ -25,7 +47,36 @@ export default class MainComponent extends Component {
   appErrorMessage = '';
   blockchainRetries = 1;
   serverRetries=0;
+  timeTillReloadCaches=100;
 
+  constructor(){
+    super(...arguments);
+    this.setUserLocation();
+  }
+
+  performInfiniteRetrieveCaches() {
+    this.isPerforming=true;
+    
+    setTimeout(
+      function (that) {
+        if(that.serverRetries >= 6)
+        {
+          that.bigStatus = 'blockchain connection cannot be established, please come back later';
+          
+          that.setStatusMessage('maybe try refreshing this window?');
+          return;
+        }
+        if(!that.isRequestPending && that.isValidPosition) that.retrieveCaches();
+        that.performInfiniteRetrieveCaches();
+      },
+      this.timeTillReloadCaches,
+      this
+    );
+  }
+
+  get locationCaches(){
+    return this.loadedCaches;
+  }
   get isAppReady() {
    return this.positioning.isTracking && this.walletConnect.isConnected && this.isValidPosition;
   }
@@ -36,7 +87,7 @@ export default class MainComponent extends Component {
   }
 
   get hasOwnCache(){
-    return this.locationCaches.any(x => x.author == this.walletConnect.connectedAccount);
+    return this.loadedCaches.any(x => x.author.toLowerCase() == this.walletConnect.connectedAccount.toLowerCase());
   }
 
 
@@ -54,11 +105,11 @@ export default class MainComponent extends Component {
   }
 
   get hasMessages(){
-    return this.locationCaches.length>0;
+    return this.loadedCaches.length>0;
   }
 
   @action clearMessages(){
-    this.locationCaches.clear();
+    this.loadedCaches.clear();
   }
 
   @action clearMessage(){
@@ -77,27 +128,52 @@ export default class MainComponent extends Component {
   await this.walletConnect.unlockCache(this.cacheToUnlock);
   
   this.cacheToUnlock = null;
+  this.toggleUnlockCacheModal();
 
-  await retrieveCaches();
+  await this.retrieveCaches();
 }
 
   @action async unlockCache(cacheTokenId)
   {
     this.cacheToUnlock = cacheTokenId;
-    toggleUnlockCacheModal();
+    this.toggleUnlockCacheModal();
   }
+
+  
 
   @action async retrieveCaches() {
     this.isRequestPending = true;
+    this.timeTillReloadCaches = this.timeTillReloadCaches+100;
     if(!this.positioning.isTracking) return;
     try {
       
       this.setStatusMessage('asking blockchain for messages');
       const pos = this.positioning.arithmeticLocation();
       const _tmessages = await this.walletConnect.getCachesForSpot(pos.lon,pos.lat);
-      this.locationCaches = _tmessages.map((tm)=>
-      {return  {title: tm.title, author: tm.author, unlocked: tm.unlocked, quantity: tm.quantity, tokenId: tm.tokenId ,isOwn: tm.author == this.walletConnect.connectedAccount}});
+      const caches = _tmessages.map((tm)=>{
+          return new CacheElement( {
+            title: tm.title, 
+            author: tm.author, 
+            unlocked: tm.unlocked,
+            quantity: tm.quantity,
+            tokenId: tm.tokenId ,
+            isOwn: tm.author == this.walletConnect.connectedAccount
+          })
+        }
+      );
+      
+      caches.forEach(c => {
+        const lc = this.loadedCaches.find((lc)=>lc.tokenId+''===c.tokenId+'')||null;
+        if(lc==null)
+        {
+          this.loadedCaches.pushObject(c);
+        }else{
+          lc.quantity=c.quantity;
+        }
+      });
 
+      this.loadedCaches.sort((a,b)=>a.tokenId>b.tokenId?-1:0 );
+    
 
     } catch (reason) {
       console.log("ERROR");
@@ -105,14 +181,8 @@ export default class MainComponent extends Component {
       this.setStatusMessage('server was not available or could not be reached: ' + reason);
       this.bigStatus = 'server connection failed, retrying (' + this.serverRetries + '/4)';
       this.serverRetries++;
-      if(this.serverRetries >= 6)
-      {
-        this.bigStatus = 'blockchain connection cannot be established, please come back later';
-        
-        this.setStatusMessage('maybe try refreshing this window?');
-        return;
-      }
-      this.retrieveCaches();
+      
+      
     }
     this.isRequestPending = false;
   }
@@ -139,7 +209,7 @@ export default class MainComponent extends Component {
       const lon =pos.lon;
       const lat =pos.lat;
       await this.walletConnect.mintMessage(this.enteredMessage,lon, lat, true);
-     
+      this.loadedCaches=[];
       await this.retrieveCaches();
 
     } catch (reason) {
@@ -157,6 +227,7 @@ export default class MainComponent extends Component {
     if (ready == true && !this.positioning.isTracking) {
       //handle requesting permissions
       this.positioning.performInfinite();
+      this.performInfiniteRetrieveCaches();
     }
   }
 
@@ -166,12 +237,12 @@ export default class MainComponent extends Component {
 
   updatePositionEvent=(msg)=> {
     this.posMessage=msg;
-    if(!this.isRequestPending)
-    {
-      this.serverRetries = 0;
-      this.setStatusMessage(msg);
-      this.retrieveCaches();
-    }
+    this.loadedCaches =[];
+    this.timeTillReloadCaches=100;
+    this.serverRetries = 0;
+    this.setStatusMessage(msg);
+  
+  
   }
 
   setAppErrorMessage(msg) {

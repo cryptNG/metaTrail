@@ -25,6 +25,7 @@ body{
 }
 .results{
   width: 100%;
+  margin-top:5px;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -39,7 +40,7 @@ body{
 
 .results .result{
 
-  padding: 5px;
+  padding: 5px 15px;
   text-align: left;
   background-color: #ffffffa0;
   margin-bottom: 5px;
@@ -50,28 +51,7 @@ body{
   color: darkblue;
 }
 
-.results h3{
-  padding: 4px 10px;
-  border: 1px solid gray;
-  border-radius: 6px;
-  background-color: #d1f9ff;
-  letter-spacing: 1px;
-  word-spacing: 2px;
-  font-size: 0.9em;
-  color: #0d7682;
-  text-shadow: 1px 1px 5px white;
-}
 
-
-.results .result.nok{
-  border-color: red;
-  color: red;
-  }
-
-  
-.results .result.ok{
-  border-color: green;
-  }
 
 
 .results-showcase{
@@ -115,7 +95,33 @@ body{
 }
 
 
-
+.result .author
+      {
+        border-radius: 5px;
+        display: inline;
+        position: absolute;
+        right: 50px;
+        padding: 0px 5px;
+      }
+    .result .badge 
+      {
+        border-radius: 15px;
+        width: 2rem;
+        position: absolute;
+        right: 10px;
+        text-align: center;
+        color: wheat;
+      }
+    .result .badge.unlocked
+      {
+        background-color: rgb(71 65 159 / 69%);
+        
+      }
+    .result .badge.locked
+      {
+        background-color: rgba(159, 65, 120, 0.69);
+        
+      }
 
 
 div.dashbar

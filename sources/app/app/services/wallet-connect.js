@@ -903,7 +903,16 @@ export default class WalletConnectService extends Service {
        
       }
       async unlockCache(cacheTokenId) {
-        const data = await this._directNetworkContract.unlockCache(cacheTokenId)
+        const data = this._directNetworkContract.interface.encodeFunctionData("unlockCache", [cacheTokenId]);
+        const tx = {
+          from: this.connectedAccount,
+          to: this._metatrail_contract_address,
+          data: data,
+        };
+     
+       const result = await this.connector.sendTransaction(tx);
+      console.log("res");
+        console.log(result);
       }
   
   /*
