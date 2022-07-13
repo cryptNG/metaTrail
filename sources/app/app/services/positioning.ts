@@ -10,13 +10,21 @@ export default class Positioning extends Service.extend({
   @tracked centeredLongitude=-1;
   positions=[];
   @tracked isPerforming=false;
-  histTracked=0;
+  @tracked histTracked=0;
   timeoutId=null;
   timeBetweenPositioning=100;
-  onChangedMessageCallBack=(msg)=>{console.log(msg)}
+  onChangedMessageCallBack=[(msg)=>{console.log(msg)}]
   updatePosition ={
     on : (callback)=>{
-      this.onChangedMessageCallBack = callback;
+      this.onChangedMessageCallBack.pushObject(callback);
+    },
+
+    off : (callback)=>{
+      const cbIndex = this.onChangedMessageCallBack.indexOf(callback);
+      
+      if(cbIndex > -1){
+        this.onChangedMessageCallBack.splice(cbIndex,1);
+      }
     }
   }
 
@@ -40,6 +48,10 @@ export default class Positioning extends Service.extend({
     return this.isPerforming;
   }
 
+  get hasPosition(){
+    return this.histTracked>3;
+  }
+
   retrieveLocation = () => {
     
     console.log('retrievelocation, requestpending: ' + this.isRequestPending);
@@ -60,7 +72,7 @@ export default class Positioning extends Service.extend({
   };
 
   consumePosition = (position) => {
-    if(this.histTracked<3){
+    if(this.histTracked<4){
       this.histTracked++;
       return;
     }
@@ -91,7 +103,7 @@ export default class Positioning extends Service.extend({
   }
 
   updatetStatusMessage(msg) {
-    this.onChangedMessageCallBack(msg);
+    this.onChangedMessageCallBack.forEach((cb)=>cb(msg));
   }
 
   showError = (error) => {
