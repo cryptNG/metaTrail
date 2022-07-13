@@ -29,3 +29,26 @@
     
   </div>
 </div> 
+
+
+{{#if this.isShowingAddNetworkModal}}
+  <ModalDialog @targetAttachment="center" @translucentOverlay={{true}}>
+    <div class="modal">
+      <div class="description">
+        You are not on the correct chain! Please change to the CryptNG TestNet. <br>
+        If your Wallet does not contain the CryptNG TestNet, you can add it using this information. <br>
+        (click on any element to copy it to your clipboard!)
+  </div>
+  <div class="modalbody">
+  <div class="copyable-entry" {{on 'click' this.toClipBoardNetworkName}}>Network Name: CryptNG-TestNet </div>
+  <div class="copyable-entry" {{on 'click' this.toClipBoardRPCURL}}>RPC-URL: https://testnet.cryptng.com:8545 </div>
+  <div class="copyable-entry" {{on 'click' this.toClipBoardChainId}}>Chain-ID 1337 </div>
+  <div class="copyable-entry" {{on 'click' this.toClipBoardSymbol}}>SYMBOL CPAY</div>
+  <div class="copyable-entry" {{on 'click' this.toClipBoardBlockExplorer}}>Block-Explorer: https://yitc.ddns.net:4000/</div>
+  </div>
+  </div>
+   <button class="mobile" type="button" {{on 'click' this.closeAddNetworkModal}}>
+        CLOSE
+      </button>
+  </ModalDialog>
+{{/if}}

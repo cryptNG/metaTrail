@@ -810,6 +810,11 @@ export default class WalletConnectService extends Service {
 
     async connect()
     {
+      await this.connector.connect();
+    }
+
+    async createSession()
+    {
       await this.connector.createSession();
     }
 

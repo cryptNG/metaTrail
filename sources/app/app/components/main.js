@@ -35,6 +35,7 @@ export default class MainComponent extends Component {
   @tracked invalidMessage =""
   @tracked isMinting=false;
   @tracked isShowingEnableGeoLocationModal = false;
+  
   @tracked isShowingErrorModal = false;
   @service web3service;
   @service walletConnect;
@@ -89,6 +90,7 @@ export default class MainComponent extends Component {
   get hasOwnCache(){
     return this.loadedCaches.any(x => x.author.toLowerCase() == this.walletConnect.connectedAccount.toLowerCase());
   }
+
 
 
   @action updateEnteredMessage(e)
@@ -291,9 +293,6 @@ export default class MainComponent extends Component {
     console.log(code);
     return this._requireSolutions[code];
   }
-
-
-
 
 
 

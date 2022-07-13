@@ -386,6 +386,7 @@ span.invalid-message.active {
     </div>
   {{else}}
     <Ux::InlineLoader @active={{this.positioning.isTracking}}/>
+    <div class="phrases-loader"></div>
   {{/if}}
   {{#unless this.positioning.isTracking}}
   <div class="cacheName">
@@ -426,6 +427,7 @@ span.invalid-message.active {
   - this service is in development!
 </div>
 <StatusBar @message={{this.statusMessage}}></StatusBar>
+
 
 {{#if this.isShowingEnableGeoLocationModal}}
   <ModalDialog @onClose={{action "reloadWindow"}} @targetAttachment="center" @translucentOverlay={{true}}>
