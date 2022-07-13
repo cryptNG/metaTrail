@@ -264,10 +264,16 @@ div.connectinfo
 
 div.connectinfo div.account
 {
-    line-height: 45px;
+   
     margin: 5px 15px 5px 5px;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1rem;
+}
 
-  
+div.connectinfo div.account:hover{
+  background-color: #4ccabf;
+  border-radius: 10px;
 }
 
 div.connectinfo div.account b{
